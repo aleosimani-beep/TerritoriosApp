@@ -1,9 +1,151 @@
-<!doctype html><html><head>
-<meta charset="utf-8"/><meta name="viewport" content="width=device-width,initial-scale=1.0"/>
-<title>TerritoriosApp</title>
-<link rel="manifest" href="manifest.json">
-</head><body>
-<h1>Territorios App</h1>
-<p>GitHub Pages Ready</p>
-<script src="sw-register.js"></script>
-</body></html>
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <title>TerritoriosApp</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="manifest" href="manifest.json" />
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+  <header class="app-header">
+    <h1 class="app-name">TERRITORIOS APP</h1>
+    <h2 id="app-title" class="app-section-title">Inicio</h2>
+  </header>
+
+  <main class="app-main">
+    <section id="view-inicio" class="view view-active">
+      <div class="card">
+        <h3>Salidas de hoy</h3>
+        <p id="today-salida" class="card-sub">Todavía no cargaste salidas para hoy.</p>
+      </div>
+      <div class="card card-link" data-open="view-salidas">
+        <h3>Salidas de semana</h3>
+        <p class="card-sub">Ver y agregar salidas (mañana y tarde por día).</p>
+      </div>
+      <div class="card card-link" data-open="view-territorios">
+        <h3>Territorios</h3>
+        <p class="card-sub">Mapa general, detección por colores y lista de territorios.</p>
+      </div>
+      <div class="card card-link" data-open="view-interesados">
+        <h3>Interesados</h3>
+        <p class="card-sub">Listado de personas interesadas.</p>
+      </div>
+      <div class="card card-link" data-open="view-informe">
+        <h3>Mi Informe</h3>
+        <p class="card-sub">Registro diario, metas y resumen mensual/anual.</p>
+      </div>
+    </section>
+
+    <section id="view-salidas" class="view">
+      <div class="section-header">
+        <h2>Salidas de semana</h2>
+        <p class="section-sub">Cargá el programa semanal y las salidas (mañana y tarde).</p>
+      </div>
+      <div class="card">
+        <h3>Imagen del programa semanal</h3>
+        <input type="file" id="file-salidas" accept="image/*" />
+        <img id="preview-salidas" class="preview" alt="" />
+      </div>
+      <div class="card">
+        <div class="card-header-inline">
+          <h3>Lista de salidas</h3>
+          <button id="btn-add-salida" class="btn-primary btn-small">Agregar</button>
+        </div>
+        <div id="salidas-list"></div>
+      </div>
+    </section>
+
+    <section id="view-territorios" class="view">
+      <div class="section-header">
+        <h2>Territorios</h2>
+        <p class="section-sub">Mapa general + detección por color.</p>
+      </div>
+      <div class="card">
+        <h3>Mapa general</h3>
+        <input type="file" id="file-territorios" accept="image/*" />
+        <canvas id="canvas-territorios" class="preview-canvas"></canvas>
+      </div>
+      <div class="card">
+        <div class="card-header-inline">
+          <h3>Territorios detectados</h3>
+          <button id="btn-detectar" class="btn-primary btn-small">Detectar</button>
+        </div>
+        <div id="territorios-list"></div>
+      </div>
+    </section>
+
+    <section id="view-interesados" class="view">
+      <div class="section-header">
+        <h2>Interesados</h2>
+      </div>
+      <div class="card">
+        <div class="card-header-inline">
+          <h3>Listado</h3>
+          <button id="btn-add-interesado" class="btn-primary btn-small">Agregar</button>
+        </div>
+        <div class="search-bar">
+          <input type="text" id="search-interesados" placeholder="Buscar..." />
+        </div>
+        <div id="interesados-list"></div>
+      </div>
+    </section>
+
+    <section id="view-informe" class="view">
+      <div class="section-header">
+        <h2>Mi Informe</h2>
+      </div>
+
+      <div class="card">
+        <div class="card-header-inline">
+          <h3>Metas</h3>
+          <button id="btn-metas" class="btn-secondary btn-small">Configurar</button>
+        </div>
+        <p id="metas-resumen" class="card-sub"></p>
+      </div>
+
+      <div class="card">
+        <div class="card-header-inline">
+          <h3>Registro diario</h3>
+          <button id="btn-add-horas" class="btn-primary btn-small">Agregar</button>
+        </div>
+        <div id="horas-list"></div>
+      </div>
+
+      <div class="card">
+        <h3>Resumen mensual</h3>
+        <p id="resumen-mensual" class="card-sub"></p>
+        <div class="progress"><div id="progress-bar" class="progress-bar"></div></div>
+      </div>
+
+      <div class="card">
+        <h3>Resumen anual</h3>
+        <p id="resumen-anual" class="card-sub"></p>
+      </div>
+
+    </section>
+  </main>
+
+  <div id="modal-backdrop" class="modal-backdrop hidden">
+    <div class="modal">
+      <h3 id="modal-title"></h3>
+      <form id="modal-form"></form>
+      <div class="modal-actions">
+        <button type="button" id="modal-cancel" class="btn-secondary">Cancelar</button>
+        <button type="submit" id="modal-save" class="btn-primary">Guardar</button>
+      </div>
+    </div>
+  </div>
+
+  <nav class="bottom-nav">
+    <button class="nav-btn nav-btn-active" data-view="view-inicio"><span>🏠</span><span>Inicio</span></button>
+    <button class="nav-btn" data-view="view-salidas"><span>📅</span><span>Salidas</span></button>
+    <button class="nav-btn" data-view="view-territorios"><span>🗺️</span><span>Territorios</span></button>
+    <button class="nav-btn" data-view="view-interesados"><span>👥</span><span>Interesados</span></button>
+    <button class="nav-btn" data-view="view-informe"><span>⏱️</span><span>Informe</span></button>
+  </nav>
+
+  <script src="sw-register.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
