@@ -1,1 +1,21 @@
-{"name": "TerritoriosApp", "short_name": "Territorios", "start_url": "./", "display": "standalone", "background_color": "#E8F1F8", "theme_color": "#5A6CF3", "icons": []}
+{
+  "name": "Territorios App",
+  "short_name": "Territorios",
+  "description": "App sencilla para programa de salidas, interesados y registro de horas.",
+  "start_url": ".",
+  "display": "standalone",
+  "background_color": "#f4f6fb",
+  "theme_color": "#1b4b82",
+  "icons": [
+    {
+      "src": "icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
