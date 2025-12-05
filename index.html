@@ -2,150 +2,310 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8" />
-  <title>TerritoriosApp</title>
+  <title>Territorios App</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <link rel="manifest" href="manifest.json" />
-  <link rel="stylesheet" href="css/style.css" />
+  <style>
+    /* ====== ESTILOS SENCILLOS ====== */
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    body {
+      background: #f4f6fb;
+      color: #222;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+    }
+
+    header {
+      padding: 10px 16px;
+      background: #1b4b82;
+      color: white;
+      text-align: center;
+      font-weight: 600;
+      font-size: 18px;
+    }
+
+    main {
+      flex: 1;
+      padding: 12px 12px 64px;
+      max-width: 900px;
+      margin: 0 auto;
+      width: 100%;
+    }
+
+    /* Cada pantalla de la app */
+    .section {
+      display: none;
+    }
+
+    .section.active {
+      display: block;
+    }
+
+    h2 {
+      font-size: 18px;
+      margin-bottom: 8px;
+    }
+
+    p {
+      font-size: 14px;
+      margin-bottom: 8px;
+    }
+
+    .card {
+      background: white;
+      border-radius: 12px;
+      padding: 12px;
+      margin-bottom: 10px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.06);
+      font-size: 14px;
+    }
+
+    .card-header {
+      font-weight: 600;
+      margin-bottom: 4px;
+    }
+
+    button {
+      border: none;
+      border-radius: 999px;
+      padding: 6px 12px;
+      font-size: 14px;
+      background: #1b4b82;
+      color: white;
+      cursor: pointer;
+      margin-top: 6px;
+    }
+
+    button:active {
+      transform: scale(0.98);
+    }
+
+    /* ====== MENÚ DE ABAJO ====== */
+    nav {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: white;
+      border-top: 1px solid #d5d8e3;
+      display: flex;
+      justify-content: space-around;
+      padding: 6px 0;
+    }
+
+    .nav-btn {
+      flex: 1;
+      text-align: center;
+      font-size: 11px;
+      color: #666;
+      cursor: pointer;
+      padding: 4px 0;
+    }
+
+    .nav-btn span {
+      display: block;
+      font-size: 18px;
+      margin-bottom: 2px;
+    }
+
+    .nav-btn.active {
+      color: #1b4b82;
+      font-weight: 600;
+    }
+  </style>
 </head>
 <body>
-  <header class="app-header">
-    <h1 class="app-name">TERRITORIOS APP</h1>
-    <h2 id="app-title" class="app-section-title">Inicio</h2>
+  <header>
+    TERRITORIOS APP
   </header>
 
-  <main class="app-main">
-    <section id="view-inicio" class="view view-active">
+  <main>
+    <!-- 🏠 INICIO -->
+    <section id="inicio" class="section active">
       <div class="card">
-        <h3>Salidas de hoy</h3>
-        <p id="today-salida" class="card-sub">Todavía no cargaste salidas para hoy.</p>
+        <div class="card-header">Inicio</div>
+        <p><strong>Salidas de hoy</strong><br>
+        Todavía no cargaste salidas para hoy.</p>
       </div>
-      <div class="card card-link" data-open="view-salidas">
-        <h3>Salidas de semana</h3>
-        <p class="card-sub">Ver y agregar salidas (mañana y tarde por día).</p>
+
+      <div class="card">
+        <div class="card-header">Salidas de semana</div>
+        <p>Ver y agregar salidas (mañana y tarde por día).</p>
       </div>
-      <div class="card card-link" data-open="view-territorios">
-        <h3>Territorios</h3>
-        <p class="card-sub">Mapa general, detección por colores y lista de territorios.</p>
+
+      <div class="card">
+        <div class="card-header">Territorios</div>
+        <p>Mapa general, detección por colores y lista de territorios.</p>
       </div>
-      <div class="card card-link" data-open="view-interesados">
-        <h3>Interesados</h3>
-        <p class="card-sub">Listado de personas interesadas.</p>
+
+      <div class="card">
+        <div class="card-header">Interesados</div>
+        <p>Listado de personas interesadas.</p>
       </div>
-      <div class="card card-link" data-open="view-informe">
-        <h3>Mi Informe</h3>
-        <p class="card-sub">Registro diario, metas y resumen mensual/anual.</p>
+
+      <div class="card">
+        <div class="card-header">Mi Informe</div>
+        <p>Registro diario, metas y resumen mensual/anual.</p>
       </div>
     </section>
 
-    <section id="view-salidas" class="view">
-      <div class="section-header">
-        <h2>Salidas de semana</h2>
-        <p class="section-sub">Cargá el programa semanal y las salidas (mañana y tarde).</p>
-      </div>
+    <!-- 📅 SALIDAS -->
+    <section id="salidas" class="section">
+      <h2>Salidas de semana</h2>
+
       <div class="card">
-        <h3>Imagen del programa semanal</h3>
-        <input type="file" id="file-salidas" accept="image/*" />
-        <img id="preview-salidas" class="preview" alt="" />
-      </div>
-      <div class="card">
-        <div class="card-header-inline">
-          <h3>Lista de salidas</h3>
-          <button id="btn-add-salida" class="btn-primary btn-small">Agregar</button>
+        <div class="card-header">Programa semanal</div>
+        <p>Cargá el programa semanal y las salidas (mañana y tarde).</p>
+        <button id="btn-agregar-salida">Agregar salida (ejemplo)</button>
+        <div id="lista-salidas" style="margin-top:8px;font-size:13px;color:#555;">
+          Todavía no agregaste salidas.
         </div>
-        <div id="salidas-list"></div>
       </div>
     </section>
 
-    <section id="view-territorios" class="view">
-      <div class="section-header">
-        <h2>Territorios</h2>
-        <p class="section-sub">Mapa general + detección por color.</p>
-      </div>
+    <!-- 🗺️ TERRITORIOS -->
+    <section id="territorios" class="section">
+      <h2>Territorios</h2>
+
       <div class="card">
-        <h3>Mapa general</h3>
-        <input type="file" id="file-territorios" accept="image/*" />
-        <canvas id="canvas-territorios" class="preview-canvas"></canvas>
-      </div>
-      <div class="card">
-        <div class="card-header-inline">
-          <h3>Territorios detectados</h3>
-          <button id="btn-detectar" class="btn-primary btn-small">Detectar</button>
+        <div class="card-header">Mapa general</div>
+        <p>Mapa general + detección por color (ejemplo).</p>
+        <button id="btn-detectar">Detectar territorios</button>
+        <div id="resultado-deteccion" style="margin-top:8px;font-size:13px;color:#555;">
+          Territorios detectados: ninguno aún.
         </div>
-        <div id="territorios-list"></div>
       </div>
     </section>
 
-    <section id="view-interesados" class="view">
-      <div class="section-header">
-        <h2>Interesados</h2>
-      </div>
+    <!-- 👥 INTERESADOS -->
+    <section id="interesados" class="section">
+      <h2>Interesados</h2>
+
       <div class="card">
-        <div class="card-header-inline">
-          <h3>Listado</h3>
-          <button id="btn-add-interesado" class="btn-primary btn-small">Agregar</button>
+        <div class="card-header">Listado</div>
+        <button id="btn-agregar-interesado">Agregar interesado (ejemplo)</button>
+        <div id="lista-interesados" style="margin-top:8px;font-size:13px;color:#555;">
+          Todavía no agregaste interesados.
         </div>
-        <div class="search-bar">
-          <input type="text" id="search-interesados" placeholder="Buscar..." />
-        </div>
-        <div id="interesados-list"></div>
       </div>
     </section>
 
-    <section id="view-informe" class="view">
-      <div class="section-header">
-        <h2>Mi Informe</h2>
+    <!-- ⏱️ INFORME -->
+    <section id="informe" class="section">
+      <h2>Mi Informe</h2>
+
+      <div class="card">
+        <div class="card-header">Metas</div>
+        <p>Acá después podés configurar metas.</p>
       </div>
 
       <div class="card">
-        <div class="card-header-inline">
-          <h3>Metas</h3>
-          <button id="btn-metas" class="btn-secondary btn-small">Configurar</button>
-        </div>
-        <p id="metas-resumen" class="card-sub"></p>
+        <div class="card-header">Registro diario</div>
+        <p>Acá después agregamos el registro diario.</p>
       </div>
 
       <div class="card">
-        <div class="card-header-inline">
-          <h3>Registro diario</h3>
-          <button id="btn-add-horas" class="btn-primary btn-small">Agregar</button>
-        </div>
-        <div id="horas-list"></div>
+        <div class="card-header">Resumen mensual</div>
+        <p>Ver el detalle del mes.</p>
       </div>
 
       <div class="card">
-        <h3>Resumen mensual</h3>
-        <p id="resumen-mensual" class="card-sub"></p>
-        <div class="progress"><div id="progress-bar" class="progress-bar"></div></div>
+        <div class="card-header">Resumen anual</div>
+        <p>Ver el total del año.</p>
       </div>
-
-      <div class="card">
-        <h3>Resumen anual</h3>
-        <p id="resumen-anual" class="card-sub"></p>
-      </div>
-
     </section>
   </main>
 
-  <div id="modal-backdrop" class="modal-backdrop hidden">
-    <div class="modal">
-      <h3 id="modal-title"></h3>
-      <form id="modal-form"></form>
-      <div class="modal-actions">
-        <button type="button" id="modal-cancel" class="btn-secondary">Cancelar</button>
-        <button type="submit" id="modal-save" class="btn-primary">Guardar</button>
-      </div>
+  <!-- ====== MENÚ INFERIOR ====== -->
+  <nav>
+    <div class="nav-btn active" data-section="inicio">
+      <span>🏠</span>Inicio
     </div>
-  </div>
-
-  <nav class="bottom-nav">
-    <button class="nav-btn nav-btn-active" data-view="view-inicio"><span>🏠</span><span>Inicio</span></button>
-    <button class="nav-btn" data-view="view-salidas"><span>📅</span><span>Salidas</span></button>
-    <button class="nav-btn" data-view="view-territorios"><span>🗺️</span><span>Territorios</span></button>
-    <button class="nav-btn" data-view="view-interesados"><span>👥</span><span>Interesados</span></button>
-    <button class="nav-btn" data-view="view-informe"><span>⏱️</span><span>Informe</span></button>
+    <div class="nav-btn" data-section="salidas">
+      <span>📅</span>Salidas
+    </div>
+    <div class="nav-btn" data-section="territorios">
+      <span>🗺️</span>Territorios
+    </div>
+    <div class="nav-btn" data-section="interesados">
+      <span>👥</span>Interesados
+    </div>
+    <div class="nav-btn" data-section="informe">
+      <span>⏱️</span>Informe
+    </div>
   </nav>
 
-  <script src="sw-register.js"></script>
-  <script src="js/app.js"></script>
+  <!-- ====== CÓDIGO JS SÚPER SIMPLE ====== -->
+  <script>
+    console.log("Territorios App SIMPLE READY");
+
+    // Cambiar de pantalla al tocar el menú
+    const sections = document.querySelectorAll(".section");
+    const navButtons = document.querySelectorAll(".nav-btn");
+
+    function mostrarSeccion(id) {
+      sections.forEach(sec => {
+        sec.classList.toggle("active", sec.id === id);
+      });
+      navButtons.forEach(btn => {
+        btn.classList.toggle("active", btn.dataset.section === id);
+      });
+    }
+
+    navButtons.forEach(btn => {
+      btn.addEventListener("click", () => {
+        const id = btn.dataset.section;
+        mostrarSeccion(id);
+      });
+    });
+
+    // Un poco de "vida" para que veas que responde
+
+    // Salidas
+    const btnSalida = document.getElementById("btn-agregar-salida");
+    const listaSalidas = document.getElementById("lista-salidas");
+    let numSalidas = 0;
+
+    if (btnSalida && listaSalidas) {
+      btnSalida.addEventListener("click", () => {
+        numSalidas++;
+        if (numSalidas === 1) listaSalidas.textContent = "";
+        const p = document.createElement("p");
+        p.textContent = "Salida " + numSalidas + " agregada (ejemplo).";
+        listaSalidas.appendChild(p);
+      });
+    }
+
+    // Territorios
+    const btnDetectar = document.getElementById("btn-detectar");
+    const resDeteccion = document.getElementById("resultado-deteccion");
+
+    if (btnDetectar && resDeteccion) {
+      btnDetectar.addEventListener("click", () => {
+        resDeteccion.textContent = "Territorios detectados: 12 (ejemplo).";
+      });
+    }
+
+    // Interesados
+    const btnInteresado = document.getElementById("btn-agregar-interesado");
+    const listaInteresados = document.getElementById("lista-interesados");
+    let numInteresados = 0;
+
+    if (btnInteresado && listaInteresados) {
+      btnInteresado.addEventListener("click", () => {
+        numInteresados++;
+        if (numInteresados === 1) listaInteresados.textContent = "";
+        const p = document.createElement("p");
+        p.textContent = "Interesado " + numInteresados + " agregado (ejemplo).";
+        listaInteresados.appendChild(p);
+      });
+    }
+  </script>
 </body>
 </html>
