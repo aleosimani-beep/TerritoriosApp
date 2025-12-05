@@ -120,12 +120,12 @@
       background: white;
       display: flex;
       flex-direction: column;
-      align-items: center;      /* centrado */
-      justify-content: center;  /* centrado */
+      align-items: center;
+      justify-content: center;
       gap: 2px;
       font-size: 13px;
       cursor: pointer;
-      text-align: center;       /* texto centrado */
+      text-align: center;
     }
     .nav-btn span {
       font-size: 22px;
@@ -615,6 +615,11 @@
         <div class="card-header">Nuevo interesado</div>
 
         <div class="field-group">
+          <label for="int-fecha">Fecha</label>
+          <input type="date" id="int-fecha" />
+        </div>
+
+        <div class="field-group">
           <label for="int-nombre">Nombre</label>
           <input type="text" id="int-nombre" placeholder="Ej: Juan Pérez" />
         </div>
@@ -688,7 +693,7 @@
           <div id="lista-registros-mes" style="font-size:13px;color:#555;">
             No hay registros para este mes.
           </div>
-          <div id="total-mes-registro" style="margin-top:8px;font-size:13px;color:#333;font-weight:600;">
+          <div id="total-mes-registro" style="margin-top:8px;font-size:16px;color:#222;font-weight:700;">
             <!-- Total del mes seleccionado -->
           </div>
         </div>
@@ -731,7 +736,7 @@
   </main>
 
   <script>
-    console.log("Territorios App v5.1 READY");
+    console.log("Territorios App v5.2 READY");
 
     const diasSemana = ["Domingo", "Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado"];
 
@@ -773,6 +778,25 @@
         mostrarTab(tabId);
       });
     });
+
+    // --- Helpers generales ---
+    function hoyISO() {
+      const hoy = new Date();
+      const y = hoy.getFullYear();
+      const m = String(hoy.getMonth() + 1).padStart(2, "0");
+      const d = String(hoy.getDate()).padStart(2, "0");
+      return `${y}-${m}-${d}`;
+    }
+
+    function formatearFechaLocal(fechaISO) {
+      if (!fechaISO) return "";
+      const fechaObj = new Date(fechaISO + "T00:00:00");
+      if (isNaN(fechaObj.getTime())) return fechaISO;
+      const dd = String(fechaObj.getDate()).padStart(2, "0");
+      const mm = String(fechaObj.getMonth() + 1).padStart(2, "0");
+      const yy = fechaObj.getFullYear();
+      return `${dd}/${mm}/${yy}`;
+    }
 
     // --- Helpers programa semanal (Salidas) ---
     function obtenerProgramaGuardado() {
@@ -909,6 +933,7 @@
     let listaInteresadosData = [];
     const contenedorInteresados = document.getElementById("lista-interesados");
     const estadoInteresado = document.getElementById("estado-interesado");
+    const intFechaInput = document.getElementById("int-fecha");
 
     function cargarInteresadosDesdeStorage() {
       const guardado = localStorage.getItem("interesados_lista");
@@ -935,31 +960,67 @@
       }
 
       contenedorInteresados.innerHTML = "";
-      listaInteresadosData.forEach(item => {
+
+      // Ordenar por fecha (más reciente primero)
+      const ordenados = [...listaInteresadosData].sort((a, b) => {
+        const fa = a.fecha || "";
+        const fb = b.fecha || "";
+        return fb.localeCompare(fa);
+      });
+
+      ordenados.forEach(item => {
         const card = document.createElement("div");
         card.style.border = "1px solid #e0e3ef";
-        card.style.borderRadius = "8px";
-        card.style.padding = "8px";
-        card.style.marginBottom = "6px";
-        card.style.background = "#f9f9fd";
+        card.style.borderRadius = "10px";
+        card.style.padding = "10px";
+        card.style.marginBottom = "8px";
+        card.style.background = "#fdf9ff";
+        card.style.fontSize = "14px";
+
+        const bloqueTexto = document.createElement("div");
+
+        const fechaDiv = document.createElement("div");
+        fechaDiv.style.fontSize = "13px";
+        fechaDiv.style.color = "#333";
+        if (item.fecha) {
+          fechaDiv.textContent = "Fecha: " + formatearFechaLocal(item.fecha);
+        }
 
         const nombre = document.createElement("div");
         nombre.style.fontWeight = "600";
+        nombre.style.fontSize = "15px";
         nombre.textContent = item.nombre || "(Sin nombre)";
 
         const dir = document.createElement("div");
-        dir.style.fontSize = "13px";
+        dir.style.fontSize = "14px";
         dir.textContent = item.direccion || "";
 
         const nota = document.createElement("div");
-        nota.style.fontSize = "12px";
+        nota.style.fontSize = "13px";
         nota.style.color = "#555";
         nota.textContent = item.nota || "";
 
-        card.appendChild(nombre);
-        if (item.direccion) card.appendChild(dir);
-        if (item.nota) card.appendChild(nota);
+        bloqueTexto.appendChild(fechaDiv);
+        bloqueTexto.appendChild(nombre);
+        if (item.direccion) bloqueTexto.appendChild(dir);
+        if (item.nota) bloqueTexto.appendChild(nota);
 
+        const btnEliminar = document.createElement("button");
+        btnEliminar.textContent = "Eliminar";
+        btnEliminar.style.fontSize = "11px";
+        btnEliminar.style.padding = "4px 8px";
+        btnEliminar.style.marginTop = "6px";
+        btnEliminar.addEventListener("click", () => {
+          const index = listaInteresadosData.indexOf(item);
+          if (index !== -1) {
+            listaInteresadosData.splice(index, 1);
+            guardarInteresadosEnStorage();
+            renderInteresados();
+          }
+        });
+
+        card.appendChild(bloqueTexto);
+        card.appendChild(btnEliminar);
         contenedorInteresados.appendChild(card);
       });
     }
@@ -975,13 +1036,16 @@
         const nombre    = nombreEl ? nombreEl.value.trim() : "";
         const direccion = dirEl    ? dirEl.value.trim()    : "";
         const nota      = notaEl   ? notaEl.value.trim()   : "";
+        let fecha       = intFechaInput ? intFechaInput.value : "";
 
         if (!nombre && !direccion && !nota) {
           if (estadoInteresado) estadoInteresado.textContent = "Cargá al menos un dato para guardar.";
           return;
         }
 
-        listaInteresadosData.push({ nombre, direccion, nota });
+        if (!fecha) fecha = hoyISO();
+
+        listaInteresadosData.push({ nombre, direccion, nota, fecha });
         guardarInteresadosEnStorage();
         renderInteresados();
 
@@ -989,6 +1053,10 @@
         if (nombreEl) nombreEl.value = "";
         if (dirEl)    dirEl.value    = "";
         if (notaEl)   notaEl.value   = "";
+        // Dejo la fecha para que se mantenga el día actual
+        if (intFechaInput && !intFechaInput.value) {
+          intFechaInput.value = fecha;
+        }
       });
     }
 
@@ -1011,14 +1079,6 @@
     const resumenMesInput   = document.getElementById("resumen-mes");
     const listaRegistrosMes = document.getElementById("lista-registros-mes");
     const totalMesRegistro  = document.getElementById("total-mes-registro");
-
-    function hoyISO() {
-      const hoy = new Date();
-      const y = hoy.getFullYear();
-      const m = String(hoy.getMonth() + 1).padStart(2, "0");
-      const d = String(hoy.getDate()).padStart(2, "0");
-      return `${y}-${m}-${d}`;
-    }
 
     function obtenerMesSeleccionado() {
       const ahora = new Date();
@@ -1066,6 +1126,11 @@
       if (resumenMesInput && !resumenMesInput.value) {
         resumenMesInput.value = hoyISO().slice(0, 7); // YYYY-MM
       }
+
+      // valor inicial de fecha en interesados
+      if (intFechaInput && !intFechaInput.value) {
+        intFechaInput.value = hoyISO();
+      }
     }
 
     function guardarMetasEnStorage() {
@@ -1091,7 +1156,7 @@
       if (!registrosMes.length) {
         listaRegistrosMes.textContent = "No hay registros para este mes.";
         if (totalMesRegistro) {
-          totalMesRegistro.textContent = "Total horas del mes seleccionado: 0.00 h";
+          totalMesRegistro.innerHTML = "Total horas del mes seleccionado: <strong>0.00 h</strong>";
         }
         return;
       }
