@@ -39,6 +39,7 @@
     .section.active {
       display: block;
     }
+
     h2 {
       font-size: 18px;
       margin-bottom: 8px;
@@ -47,6 +48,7 @@
       font-size: 14px;
       margin-bottom: 8px;
     }
+
     .card {
       background: white;
       border-radius: 12px;
@@ -59,6 +61,21 @@
       font-weight: 600;
       margin-bottom: 4px;
     }
+
+    /* Tarjeta destacada de INICIO */
+    .card.destacada {
+      padding: 18px;
+      margin-bottom: 14px;
+    }
+    .card.destacada .card-header {
+      font-size: 16px;
+    }
+    #salida-hoy-texto {
+      font-size: 16px;
+      line-height: 1.4;
+      margin-top: 4px;
+    }
+
     button {
       border: none;
       border-radius: 999px;
@@ -72,6 +89,7 @@
     button:active {
       transform: scale(0.98);
     }
+
     nav {
       position: fixed;
       bottom: 0;
@@ -114,6 +132,7 @@
     input[type="text"],
     input[type="number"],
     input[type="date"],
+    input[type="month"],
     textarea {
       padding: 6px 8px;
       border-radius: 8px;
@@ -127,19 +146,37 @@
       resize: vertical;
     }
 
+    /* SALIDAS: días con menú desplegable */
     .programa-semanal {
-      display: grid;
+      display: flex;
+      flex-direction: column;
       gap: 6px;
       margin-top: 8px;
     }
-    .fila-dia {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      font-size: 14px;
+    details.dia-detalle {
+      background: #eef1ff;
+      border-radius: 10px;
+      padding: 6px 8px;
     }
-    .fila-dia span {
-      width: 90px;
+    details.dia-detalle summary {
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: 600;
+      list-style: none;
+    }
+    details.dia-detalle summary::marker {
+      content: "";
+    }
+    .turno {
+      margin-top: 6px;
+      padding: 6px 8px;
+      border-radius: 8px;
+      background: #f9f9ff;
+      border: 1px solid #dde0f3;
+    }
+    .turno h4 {
+      font-size: 13px;
+      margin-bottom: 4px;
     }
   </style>
 </head>
@@ -151,14 +188,14 @@
   <main>
     <!-- 🏠 INICIO -->
     <section id="inicio" class="section active">
-      <div class="card">
+      <div class="card destacada">
         <div class="card-header">Salida de hoy</div>
         <p id="salida-hoy-texto">Todavía no cargaste el programa semanal.</p>
       </div>
 
       <div class="card">
         <div class="card-header">Salidas de semana</div>
-        <p>Cargá el programa en la pestaña <strong>Salidas</strong>. Acá siempre vas a ver la salida del día según el territorio cargado.</p>
+        <p>Cargá el programa en la pestaña <strong>Salidas</strong>. Acá siempre vas a ver la salida del día (mañana y tarde) según lo que cargues.</p>
       </div>
 
       <div class="card">
@@ -177,38 +214,317 @@
       <h2>Salidas de semana</h2>
 
       <div class="card">
-        <div class="card-header">Programa semanal por territorio</div>
-        <p>Ingresá el número de territorio para cada día de la semana. Se guarda en este dispositivo.</p>
+        <div class="card-header">Programa semanal (mañana y tarde)</div>
+        <p>Para cada día cargá hora, lugar, conductor y territorio para <strong>mañana</strong> y <strong>tarde</strong>. Se guarda en este dispositivo.</p>
 
         <div class="programa-semanal">
-          <div class="fila-dia">
-            <span>Domingo</span>
-            <input type="text" id="territorio-dia-0" placeholder="Ej: 12" />
-          </div>
-          <div class="fila-dia">
-            <span>Lunes</span>
-            <input type="text" id="territorio-dia-1" placeholder="Ej: 5" />
-          </div>
-          <div class="fila-dia">
-            <span>Martes</span>
-            <input type="text" id="territorio-dia-2" placeholder="Ej: 8" />
-          </div>
-          <div class="fila-dia">
-            <span>Miércoles</span>
-            <input type="text" id="territorio-dia-3" placeholder="Ej: 10" />
-          </div>
-          <div class="fila-dia">
-            <span>Jueves</span>
-            <input type="text" id="territorio-dia-4" placeholder="Ej: 3" />
-          </div>
-          <div class="fila-dia">
-            <span>Viernes</span>
-            <input type="text" id="territorio-dia-5" placeholder="Ej: 7" />
-          </div>
-          <div class="fila-dia">
-            <span>Sábado</span>
-            <input type="text" id="territorio-dia-6" placeholder="Ej: 9" />
-          </div>
+          <!-- DOMINGO (0) -->
+          <details class="dia-detalle" open>
+            <summary>Domingo</summary>
+            <div class="turno">
+              <h4>Mañana</h4>
+              <div class="field-group">
+                <label for="d0-man-hora">Hora</label>
+                <input type="text" id="d0-man-hora" placeholder="Ej: 9:30" />
+              </div>
+              <div class="field-group">
+                <label for="d0-man-lugar">Lugar</label>
+                <input type="text" id="d0-man-lugar" placeholder="Ej: Salida Salón" />
+              </div>
+              <div class="field-group">
+                <label for="d0-man-conductor">Conductor</label>
+                <input type="text" id="d0-man-conductor" placeholder="Ej: Juan" />
+              </div>
+              <div class="field-group">
+                <label for="d0-man-territorio">Territorio</label>
+                <input type="text" id="d0-man-territorio" placeholder="Ej: 12" />
+              </div>
+            </div>
+
+            <div class="turno">
+              <h4>Tarde</h4>
+              <div class="field-group">
+                <label for="d0-tar-hora">Hora</label>
+                <input type="text" id="d0-tar-hora" placeholder="Ej: 15:30" />
+              </div>
+              <div class="field-group">
+                <label for="d0-tar-lugar">Lugar</label>
+                <input type="text" id="d0-tar-lugar" placeholder="Ej: Salida Salón" />
+              </div>
+              <div class="field-group">
+                <label for="d0-tar-conductor">Conductor</label>
+                <input type="text" id="d0-tar-conductor" placeholder="Ej: Pedro" />
+              </div>
+              <div class="field-group">
+                <label for="d0-tar-territorio">Territorio</label>
+                <input type="text" id="d0-tar-territorio" placeholder="Ej: 14" />
+              </div>
+            </div>
+          </details>
+
+          <!-- LUNES (1) -->
+          <details class="dia-detalle">
+            <summary>Lunes</summary>
+            <div class="turno">
+              <h4>Mañana</h4>
+              <div class="field-group">
+                <label for="d1-man-hora">Hora</label>
+                <input type="text" id="d1-man-hora" placeholder="Ej: 9:30" />
+              </div>
+              <div class="field-group">
+                <label for="d1-man-lugar">Lugar</label>
+                <input type="text" id="d1-man-lugar" placeholder="Ej: Salida Salón" />
+              </div>
+              <div class="field-group">
+                <label for="d1-man-conductor">Conductor</label>
+                <input type="text" id="d1-man-conductor" placeholder="Ej: Juan" />
+              </div>
+              <div class="field-group">
+                <label for="d1-man-territorio">Territorio</label>
+                <input type="text" id="d1-man-territorio" placeholder="Ej: 5" />
+              </div>
+            </div>
+
+            <div class="turno">
+              <h4>Tarde</h4>
+              <div class="field-group">
+                <label for="d1-tar-hora">Hora</label>
+                <input type="text" id="d1-tar-hora" placeholder="Ej: 15:30" />
+              </div>
+              <div class="field-group">
+                <label for="d1-tar-lugar">Lugar</label>
+                <input type="text" id="d1-tar-lugar" placeholder="Ej: Salida Salón" />
+              </div>
+              <div class="field-group">
+                <label for="d1-tar-conductor">Conductor</label>
+                <input type="text" id="d1-tar-conductor" placeholder="Ej: Pedro" />
+              </div>
+              <div class="field-group">
+                <label for="d1-tar-territorio">Territorio</label>
+                <input type="text" id="d1-tar-territorio" placeholder="Ej: 8" />
+              </div>
+            </div>
+          </details>
+
+          <!-- MARTES (2) -->
+          <details class="dia-detalle">
+            <summary>Martes</summary>
+            <div class="turno">
+              <h4>Mañana</h4>
+              <div class="field-group">
+                <label for="d2-man-hora">Hora</label>
+                <input type="text" id="d2-man-hora" placeholder="Ej: 9:30" />
+              </div>
+              <div class="field-group">
+                <label for="d2-man-lugar">Lugar</label>
+                <input type="text" id="d2-man-lugar" placeholder="Ej: Salida Salón" />
+              </div>
+              <div class="field-group">
+                <label for="d2-man-conductor">Conductor</label>
+                <input type="text" id="d2-man-conductor" placeholder="Ej: Juan" />
+              </div>
+              <div class="field-group">
+                <label for="d2-man-territorio">Territorio</label>
+                <input type="text" id="d2-man-territorio" placeholder="Ej: 8" />
+              </div>
+            </div>
+
+            <div class="turno">
+              <h4>Tarde</h4>
+              <div class="field-group">
+                <label for="d2-tar-hora">Hora</label>
+                <input type="text" id="d2-tar-hora" placeholder="Ej: 15:30" />
+              </div>
+              <div class="field-group">
+                <label for="d2-tar-lugar">Lugar</label>
+                <input type="text" id="d2-tar-lugar" placeholder="Ej: Salida Salón" />
+              </div>
+              <div class="field-group">
+                <label for="d2-tar-conductor">Conductor</label>
+                <input type="text" id="d2-tar-conductor" placeholder="Ej: Pedro" />
+              </div>
+              <div class="field-group">
+                <label for="d2-tar-territorio">Territorio</label>
+                <input type="text" id="d2-tar-territorio" placeholder="Ej: 10" />
+              </div>
+            </div>
+          </details>
+
+          <!-- MIÉRCOLES (3) -->
+          <details class="dia-detalle">
+            <summary>Miércoles</summary>
+            <div class="turno">
+              <h4>Mañana</h4>
+              <div class="field-group">
+                <label for="d3-man-hora">Hora</label>
+                <input type="text" id="d3-man-hora" placeholder="Ej: 9:30" />
+              </div>
+              <div class="field-group">
+                <label for="d3-man-lugar">Lugar</label>
+                <input type="text" id="d3-man-lugar" placeholder="Ej: Salida Salón" />
+              </div>
+              <div class="field-group">
+                <label for="d3-man-conductor">Conductor</label>
+                <input type="text" id="d3-man-conductor" placeholder="Ej: Juan" />
+              </div>
+              <div class="field-group">
+                <label for="d3-man-territorio">Territorio</label>
+                <input type="text" id="d3-man-territorio" placeholder="Ej: 10" />
+              </div>
+            </div>
+
+            <div class="turno">
+              <h4>Tarde</h4>
+              <div class="field-group">
+                <label for="d3-tar-hora">Hora</label>
+                <input type="text" id="d3-tar-hora" placeholder="Ej: 15:30" />
+              </div>
+              <div class="field-group">
+                <label for="d3-tar-lugar">Lugar</label>
+                <input type="text" id="d3-tar-lugar" placeholder="Ej: Salida Salón" />
+              </div>
+              <div class="field-group">
+                <label for="d3-tar-conductor">Conductor</label>
+                <input type="text" id="d3-tar-conductor" placeholder="Ej: Pedro" />
+              </div>
+              <div class="field-group">
+                <label for="d3-tar-territorio">Territorio</label>
+                <input type="text" id="d3-tar-territorio" placeholder="Ej: 11" />
+              </div>
+            </div>
+          </details>
+
+          <!-- JUEVES (4) -->
+          <details class="dia-detalle">
+            <summary>Jueves</summary>
+            <div class="turno">
+              <h4>Mañana</h4>
+              <div class="field-group">
+                <label for="d4-man-hora">Hora</label>
+                <input type="text" id="d4-man-hora" placeholder="Ej: 9:30" />
+              </div>
+              <div class="field-group">
+                <label for="d4-man-lugar">Lugar</label>
+                <input type="text" id="d4-man-lugar" placeholder="Ej: Salida Salón" />
+              </div>
+              <div class="field-group">
+                <label for="d4-man-conductor">Conductor</label>
+                <input type="text" id="d4-man-conductor" placeholder="Ej: Juan" />
+              </div>
+              <div class="field-group">
+                <label for="d4-man-territorio">Territorio</label>
+                <input type="text" id="d4-man-territorio" placeholder="Ej: 3" />
+              </div>
+            </div>
+
+            <div class="turno">
+              <h4>Tarde</h4>
+              <div class="field-group">
+                <label for="d4-tar-hora">Hora</label>
+                <input type="text" id="d4-tar-hora" placeholder="Ej: 15:30" />
+              </div>
+              <div class="field-group">
+                <label for="d4-tar-lugar">Lugar</label>
+                <input type="text" id="d4-tar-lugar" placeholder="Ej: Salida Salón" />
+              </div>
+              <div class="field-group">
+                <label for="d4-tar-conductor">Conductor</label>
+                <input type="text" id="d4-tar-conductor" placeholder="Ej: Pedro" />
+              </div>
+              <div class="field-group">
+                <label for="d4-tar-territorio">Territorio</label>
+                <input type="text" id="d4-tar-territorio" placeholder="Ej: 9" />
+              </div>
+            </div>
+          </details>
+
+          <!-- VIERNES (5) -->
+          <details class="dia-detalle">
+            <summary>Viernes</summary>
+            <div class="turno">
+              <h4>Mañana</h4>
+              <div class="field-group">
+                <label for="d5-man-hora">Hora</label>
+                <input type="text" id="d5-man-hora" placeholder="Ej: 9:30" />
+              </div>
+              <div class="field-group">
+                <label for="d5-man-lugar">Lugar</label>
+                <input type="text" id="d5-man-lugar" placeholder="Ej: Salida Salón" />
+              </div>
+              <div class="field-group">
+                <label for="d5-man-conductor">Conductor</label>
+                <input type="text" id="d5-man-conductor" placeholder="Ej: Juan" />
+              </div>
+              <div class="field-group">
+                <label for="d5-man-territorio">Territorio</label>
+                <input type="text" id="d5-man-territorio" placeholder="Ej: 7" />
+              </div>
+            </div>
+
+            <div class="turno">
+              <h4>Tarde</h4>
+              <div class="field-group">
+                <label for="d5-tar-hora">Hora</label>
+                <input type="text" id="d5-tar-hora" placeholder="Ej: 15:30" />
+              </div>
+              <div class="field-group">
+                <label for="d5-tar-lugar">Lugar</label>
+                <input type="text" id="d5-tar-lugar" placeholder="Ej: Salida Salón" />
+              </div>
+              <div class="field-group">
+                <label for="d5-tar-conductor">Conductor</label>
+                <input type="text" id="d5-tar-conductor" placeholder="Ej: Pedro" />
+              </div>
+              <div class="field-group">
+                <label for="d5-tar-territorio">Territorio</label>
+                <input type="text" id="d5-tar-territorio" placeholder="Ej: 6" />
+              </div>
+            </div>
+          </details>
+
+          <!-- SÁBADO (6) -->
+          <details class="dia-detalle">
+            <summary>Sábado</summary>
+            <div class="turno">
+              <h4>Mañana</h4>
+              <div class="field-group">
+                <label for="d6-man-hora">Hora</label>
+                <input type="text" id="d6-man-hora" placeholder="Ej: 9:30" />
+              </div>
+              <div class="field-group">
+                <label for="d6-man-lugar">Lugar</label>
+                <input type="text" id="d6-man-lugar" placeholder="Ej: Salida Salón" />
+              </div>
+              <div class="field-group">
+                <label for="d6-man-conductor">Conductor</label>
+                <input type="text" id="d6-man-conductor" placeholder="Ej: Juan" />
+              </div>
+              <div class="field-group">
+                <label for="d6-man-territorio">Territorio</label>
+                <input type="text" id="d6-man-territorio" placeholder="Ej: 9" />
+              </div>
+            </div>
+
+            <div class="turno">
+              <h4>Tarde</h4>
+              <div class="field-group">
+                <label for="d6-tar-hora">Hora</label>
+                <input type="text" id="d6-tar-hora" placeholder="Ej: 15:30" />
+              </div>
+              <div class="field-group">
+                <label for="d6-tar-lugar">Lugar</label>
+                <input type="text" id="d6-tar-lugar" placeholder="Ej: Salida Salón" />
+              </div>
+              <div class="field-group">
+                <label for="d6-tar-conductor">Conductor</label>
+                <input type="text" id="d6-tar-conductor" placeholder="Ej: Pedro" />
+              </div>
+              <div class="field-group">
+                <label for="d6-tar-territorio">Territorio</label>
+                <input type="text" id="d6-tar-territorio" placeholder="Ej: 12" />
+              </div>
+            </div>
+          </details>
         </div>
 
         <button id="btn-guardar-programa">Guardar programa semanal</button>
@@ -295,12 +611,33 @@
           <input type="number" id="reg-horas" min="0" step="0.25" placeholder="Ej: 2.5" />
         </div>
 
+        <div class="field-group">
+          <label for="reg-cursos">Cursos bíblicos</label>
+          <input type="number" id="reg-cursos" min="0" step="1" placeholder="Ej: 1" />
+        </div>
+
         <button id="btn-agregar-registro">Agregar registro</button>
         <div id="estado-registro" style="margin-top:8px;font-size:13px;color:#555;"></div>
       </div>
 
       <div class="card">
-        <div class="card-header">Resumen mensual (mes actual)</div>
+        <div class="card-header">Mes a ver / editar</div>
+        <div class="field-group">
+          <label for="resumen-mes">Seleccioná el mes</label>
+          <input type="month" id="resumen-mes" />
+          <p style="font-size:12px;color:#555;">El resumen mensual y la lista de registros usan este mes.</p>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header">Registros del mes seleccionado</div>
+        <div id="lista-registros-mes" style="font-size:13px;color:#555;">
+          No hay registros para este mes.
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header">Resumen mensual (mes seleccionado)</div>
         <div id="resumen-mensual-detalle" style="font-size:13px;color:#555;">
           Todavía no hay registros.
         </div>
@@ -335,31 +672,26 @@
   </nav>
 
   <script>
-    console.log("Territorios App v2 READY");
+    console.log("Territorios App v4 READY");
 
     const diasSemana = ["Domingo", "Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado"];
 
-    // --- Navegación entre secciones ---
+    // --- Navegación ---
     const sections = document.querySelectorAll(".section");
     const navButtons = document.querySelectorAll(".nav-btn");
 
     function mostrarSeccion(id) {
-      sections.forEach((sec) => {
-        sec.classList.toggle("active", sec.id === id);
-      });
-      navButtons.forEach((btn) => {
-        btn.classList.toggle("active", btn.dataset.section === id);
-      });
+      sections.forEach(sec => sec.classList.toggle("active", sec.id === id));
+      navButtons.forEach(btn => btn.classList.toggle("active", btn.dataset.section === id));
     }
 
-    navButtons.forEach((btn) => {
+    navButtons.forEach(btn => {
       btn.addEventListener("click", () => {
-        const id = btn.dataset.section;
-        mostrarSeccion(id);
+        mostrarSeccion(btn.dataset.section);
       });
     });
 
-    // --- SALIDAS: programa semanal de territorios ---
+    // --- Helpers programa semanal (Salidas) ---
     function obtenerProgramaGuardado() {
       const guardado = localStorage.getItem("territorios_programaSemanal");
       if (!guardado) return {};
@@ -370,14 +702,60 @@
       }
     }
 
+    function normalizarDia(programaDia) {
+      // Compatibilidad con versiones viejas (texto simple)
+      if (!programaDia || typeof programaDia !== "object") {
+        const territorio = programaDia != null ? String(programaDia) : "";
+        return {
+          manana: { hora: "", lugar: "", conductor: "", territorio },
+          tarde:  { hora: "", lugar: "", conductor: "", territorio: "" }
+        };
+      }
+      return {
+        manana: {
+          hora:       programaDia.manana && programaDia.manana.hora       ? programaDia.manana.hora       : "",
+          lugar:      programaDia.manana && programaDia.manana.lugar      ? programaDia.manana.lugar      : "",
+          conductor:  programaDia.manana && programaDia.manana.conductor  ? programaDia.manana.conductor  : "",
+          territorio: programaDia.manana && programaDia.manana.territorio ? programaDia.manana.territorio : ""
+        },
+        tarde: {
+          hora:       programaDia.tarde && programaDia.tarde.hora       ? programaDia.tarde.hora       : "",
+          lugar:      programaDia.tarde && programaDia.tarde.lugar      ? programaDia.tarde.lugar      : "",
+          conductor:  programaDia.tarde && programaDia.tarde.conductor  ? programaDia.tarde.conductor  : "",
+          territorio: programaDia.tarde && programaDia.tarde.territorio ? programaDia.tarde.territorio : ""
+        }
+      };
+    }
+
     function rellenarProgramaEnInputs() {
       const programa = obtenerProgramaGuardado();
-      diasSemana.forEach((_, idx) => {
-        const input = document.getElementById("territorio-dia-" + idx);
-        if (input && programa[idx] !== undefined) {
-          input.value = programa[idx];
-        }
-      });
+      for (let i = 0; i < 7; i++) {
+        const diaNorm = normalizarDia(programa[i]);
+        const ids = [
+          `d${i}-man-hora`,
+          `d${i}-man-lugar`,
+          `d${i}-man-conductor`,
+          `d${i}-man-territorio`,
+          `d${i}-tar-hora`,
+          `d${i}-tar-lugar`,
+          `d${i}-tar-conductor`,
+          `d${i}-tar-territorio`
+        ];
+        const valores = [
+          diaNorm.manana.hora,
+          diaNorm.manana.lugar,
+          diaNorm.manana.conductor,
+          diaNorm.manana.territorio,
+          diaNorm.tarde.hora,
+          diaNorm.tarde.lugar,
+          diaNorm.tarde.conductor,
+          diaNorm.tarde.territorio
+        ];
+        ids.forEach((id, idx) => {
+          const el = document.getElementById(id);
+          if (el) el.value = valores[idx] || "";
+        });
+      }
     }
 
     function actualizarSalidaHoy(programaOpcional) {
@@ -385,18 +763,34 @@
       if (!salidaElem) return;
 
       let programa = programaOpcional;
-      if (!programa) {
-        programa = obtenerProgramaGuardado();
-      }
+      if (!programa) programa = obtenerProgramaGuardado();
 
       const hoy = new Date();
       const idx = hoy.getDay(); // 0=Domingo ... 6=Sábado
-      const valor = programa && programa[idx] ? String(programa[idx]).trim() : "";
+      const diaNorm = normalizarDia(programa[idx]);
 
-      if (valor) {
-        salidaElem.textContent = "Hoy te toca el territorio: " + valor;
+      const partes = [];
+
+      function construirLineaTurno(titulo, datos) {
+        const trozos = [];
+        if (datos.hora) trozos.push(datos.hora);
+        if (datos.lugar) trozos.push(datos.lugar);
+        if (datos.conductor) trozos.push("Conductor: " + datos.conductor);
+        if (datos.territorio) trozos.push("Territorio: " + datos.territorio);
+        if (!trozos.length) return "";
+        return "<strong>" + titulo + ":</strong> " + trozos.join(" · ");
+      }
+
+      const lineaManana = construirLineaTurno("Mañana", diaNorm.manana);
+      const lineaTarde  = construirLineaTurno("Tarde",  diaNorm.tarde);
+
+      if (lineaManana) partes.push(lineaManana);
+      if (lineaTarde)  partes.push(lineaTarde);
+
+      if (!partes.length) {
+        salidaElem.textContent = "Todavía no cargaste salida para hoy.";
       } else {
-        salidaElem.textContent = "Todavía no cargaste territorio para hoy.";
+        salidaElem.innerHTML = partes.join("<br>");
       }
     }
 
@@ -406,14 +800,24 @@
     if (btnGuardarPrograma) {
       btnGuardarPrograma.addEventListener("click", () => {
         const programa = {};
-        diasSemana.forEach((_, idx) => {
-          const input = document.getElementById("territorio-dia-" + idx);
-          programa[idx] = input ? input.value.trim() : "";
-        });
-        localStorage.setItem("territorios_programaSemanal", JSON.stringify(programa));
-        if (estadoPrograma) {
-          estadoPrograma.textContent = "Programa semanal guardado.";
+        for (let i = 0; i < 7; i++) {
+          programa[i] = {
+            manana: {
+              hora:       (document.getElementById(`d${i}-man-hora`)?.value || "").trim(),
+              lugar:      (document.getElementById(`d${i}-man-lugar`)?.value || "").trim(),
+              conductor:  (document.getElementById(`d${i}-man-conductor`)?.value || "").trim(),
+              territorio: (document.getElementById(`d${i}-man-territorio`)?.value || "").trim()
+            },
+            tarde: {
+              hora:       (document.getElementById(`d${i}-tar-hora`)?.value || "").trim(),
+              lugar:      (document.getElementById(`d${i}-tar-lugar`)?.value || "").trim(),
+              conductor:  (document.getElementById(`d${i}-tar-conductor`)?.value || "").trim(),
+              territorio: (document.getElementById(`d${i}-tar-territorio`)?.value || "").trim()
+            }
+          };
         }
+        localStorage.setItem("territorios_programaSemanal", JSON.stringify(programa));
+        if (estadoPrograma) estadoPrograma.textContent = "Programa semanal guardado.";
         actualizarSalidaHoy(programa);
       });
     }
@@ -448,7 +852,7 @@
       }
 
       contenedorInteresados.innerHTML = "";
-      listaInteresadosData.forEach((item) => {
+      listaInteresadosData.forEach(item => {
         const card = document.createElement("div");
         card.style.border = "1px solid #e0e3ef";
         card.style.borderRadius = "8px";
@@ -482,17 +886,15 @@
     if (btnGuardarInteresado) {
       btnGuardarInteresado.addEventListener("click", () => {
         const nombreEl = document.getElementById("int-nombre");
-        const dirEl = document.getElementById("int-direccion");
-        const notaEl = document.getElementById("int-nota");
+        const dirEl    = document.getElementById("int-direccion");
+        const notaEl   = document.getElementById("int-nota");
 
-        const nombre = nombreEl ? nombreEl.value.trim() : "";
-        const direccion = dirEl ? dirEl.value.trim() : "";
-        const nota = notaEl ? notaEl.value.trim() : "";
+        const nombre    = nombreEl ? nombreEl.value.trim() : "";
+        const direccion = dirEl    ? dirEl.value.trim()    : "";
+        const nota      = notaEl   ? notaEl.value.trim()   : "";
 
         if (!nombre && !direccion && !nota) {
-          if (estadoInteresado) {
-            estadoInteresado.textContent = "Cargá al menos un dato para guardar.";
-          }
+          if (estadoInteresado) estadoInteresado.textContent = "Cargá al menos un dato para guardar.";
           return;
         }
 
@@ -500,36 +902,57 @@
         guardarInteresadosEnStorage();
         renderInteresados();
 
-        if (estadoInteresado) {
-          estadoInteresado.textContent = "Interesado guardado.";
-        }
+        if (estadoInteresado) estadoInteresado.textContent = "Interesado guardado.";
         if (nombreEl) nombreEl.value = "";
-        if (dirEl) dirEl.value = "";
-        if (notaEl) notaEl.value = "";
+        if (dirEl)    dirEl.value    = "";
+        if (notaEl)   notaEl.value   = "";
       });
     }
 
-    // --- INFORME: metas y horas ---
+    // --- INFORME ---
     let metas = { metaMensual: 0, metaAnual: 0 };
     let registrosHoras = [];
 
     const metaMensualInput = document.getElementById("meta-mensual");
-    const metaAnualInput = document.getElementById("meta-anual");
-    const estadoMetas = document.getElementById("estado-metas");
+    const metaAnualInput   = document.getElementById("meta-anual");
+    const estadoMetas      = document.getElementById("estado-metas");
 
-    const regFechaInput = document.getElementById("reg-fecha");
-    const regHorasInput = document.getElementById("reg-horas");
-    const estadoRegistro = document.getElementById("estado-registro");
+    const regFechaInput   = document.getElementById("reg-fecha");
+    const regHorasInput   = document.getElementById("reg-horas");
+    const regCursosInput  = document.getElementById("reg-cursos");
+    const estadoRegistro  = document.getElementById("estado-registro");
 
     const resumenMensualDetalle = document.getElementById("resumen-mensual-detalle");
-    const resumenAnualDetalle = document.getElementById("resumen-anual-detalle");
+    const resumenAnualDetalle   = document.getElementById("resumen-anual-detalle");
+
+    const resumenMesInput   = document.getElementById("resumen-mes");
+    const listaRegistrosMes = document.getElementById("lista-registros-mes");
 
     function hoyISO() {
       const hoy = new Date();
       const y = hoy.getFullYear();
       const m = String(hoy.getMonth() + 1).padStart(2, "0");
       const d = String(hoy.getDate()).padStart(2, "0");
-      return y + "-" + m + "-" + d;
+      return `${y}-${m}-${d}`;
+    }
+
+    function obtenerMesSeleccionado() {
+      const ahora = new Date();
+      let mes  = ahora.getMonth();      // 0-11
+      let anio = ahora.getFullYear();
+
+      if (resumenMesInput && resumenMesInput.value) {
+        const partes = resumenMesInput.value.split("-");
+        if (partes.length === 2) {
+          const y = parseInt(partes[0], 10);
+          const m = parseInt(partes[1], 10);
+          if (!isNaN(y) && !isNaN(m)) {
+            anio = y;
+            mes  = m - 1; // input month 1-12
+          }
+        }
+      }
+      return { mes, anio };
     }
 
     function cargarMetasYRegistrosDesdeStorage() {
@@ -538,7 +961,7 @@
         try {
           const obj = JSON.parse(metasGuardadas);
           metas.metaMensual = parseFloat(obj.metaMensual) || 0;
-          metas.metaAnual = parseFloat(obj.metaAnual) || 0;
+          metas.metaAnual   = parseFloat(obj.metaAnual)   || 0;
         } catch (e) {}
       }
 
@@ -552,8 +975,13 @@
       }
 
       if (metaMensualInput) metaMensualInput.value = metas.metaMensual || "";
-      if (metaAnualInput) metaAnualInput.value = metas.metaAnual || "";
-      if (regFechaInput && !regFechaInput.value) regFechaInput.value = hoyISO();
+      if (metaAnualInput)   metaAnualInput.value   = metas.metaAnual   || "";
+      if (regFechaInput && !regFechaInput.value)   regFechaInput.value = hoyISO();
+
+      // valor inicial del selector de mes
+      if (resumenMesInput && !resumenMesInput.value) {
+        resumenMesInput.value = hoyISO().slice(0, 7); // YYYY-MM
+      }
     }
 
     function guardarMetasEnStorage() {
@@ -564,31 +992,95 @@
       localStorage.setItem("informe_registrosHoras", JSON.stringify(registrosHoras));
     }
 
+    function renderRegistrosMes() {
+      if (!listaRegistrosMes) return;
+      const { mes, anio } = obtenerMesSeleccionado();
+
+      const registrosMes = registrosHoras
+        .map((reg, index) => ({ ...reg, index }))
+        .filter((reg) => {
+          if (!reg.fecha) return false;
+          const fecha = new Date(reg.fecha + "T00:00:00");
+          return fecha.getMonth() === mes && fecha.getFullYear() === anio;
+        });
+
+      if (!registrosMes.length) {
+        listaRegistrosMes.textContent = "No hay registros para este mes.";
+        return;
+      }
+
+      listaRegistrosMes.innerHTML = "";
+      registrosMes.forEach((reg) => {
+        const fila = document.createElement("div");
+        fila.style.border = "1px solid #e0e3ef";
+        fila.style.borderRadius = "8px";
+        fila.style.padding = "6px 8px";
+        fila.style.marginBottom = "6px";
+        fila.style.background = "#f9f9fd";
+        fila.style.display = "flex";
+        fila.style.justifyContent = "space-between";
+        fila.style.alignItems = "center";
+        fila.style.gap = "8px";
+
+        const fechaObj = new Date(reg.fecha + "T00:00:00");
+        let textoFecha;
+        if (isNaN(fechaObj.getTime())) {
+          textoFecha = reg.fecha;
+        } else {
+          const dd = String(fechaObj.getDate()).padStart(2, "0");
+          const mm = String(fechaObj.getMonth() + 1).padStart(2, "0");
+          const yy = fechaObj.getFullYear();
+          textoFecha = `${dd}/${mm}/${yy}`;
+        }
+
+        const datos = document.createElement("div");
+        datos.style.fontSize = "13px";
+        const cursos = typeof reg.cursos === "number" ? reg.cursos : (parseInt(reg.cursos, 10) || 0);
+
+        datos.innerHTML =
+          `<strong>${textoFecha}</strong> · ` +
+          `Horas: ${Number(reg.horas || 0).toFixed(2)}` +
+          ` · Cursos: ${cursos}`;
+
+        const btnEliminar = document.createElement("button");
+        btnEliminar.textContent = "Eliminar";
+        btnEliminar.style.fontSize = "11px";
+        btnEliminar.style.padding = "4px 8px";
+        btnEliminar.addEventListener("click", () => {
+          registrosHoras.splice(reg.index, 1);
+          guardarRegistrosEnStorage();
+          actualizarResumenes();
+        });
+
+        fila.appendChild(datos);
+        fila.appendChild(btnEliminar);
+        listaRegistrosMes.appendChild(fila);
+      });
+    }
+
     function actualizarResumenes() {
       const ahora = new Date();
-      const mesActual = ahora.getMonth(); // 0-11
-      const anioActual = ahora.getFullYear();
+      const { mes: mesResumen, anio: anioResumen } = obtenerMesSeleccionado();
 
-      // Total mensual (mes calendario actual)
+      // Total mensual (mes seleccionado)
       let totalMensual = 0;
       registrosHoras.forEach((reg) => {
         if (!reg.fecha) return;
         const fecha = new Date(reg.fecha + "T00:00:00");
-        if (fecha.getMonth() === mesActual && fecha.getFullYear() === anioActual) {
+        if (fecha.getMonth() === mesResumen && fecha.getFullYear() === anioResumen) {
           totalMensual += Number(reg.horas) || 0;
         }
       });
 
-      // Año de servicio: septiembre a agosto
+      // Año de servicio: septiembre a agosto, basado en mes/año seleccionados
       let anioServicioInicio;
-      if (mesActual >= 8) {
-        // Septiembre (8) a diciembre
-        anioServicioInicio = anioActual;
+      if (mesResumen >= 8) {
+        anioServicioInicio = anioResumen;
       } else {
-        anioServicioInicio = anioActual - 1;
+        anioServicioInicio = anioResumen - 1;
       }
-      const inicioServicio = new Date(anioServicioInicio, 8, 1); // 1 sept
-      const finServicio = new Date(anioServicioInicio + 1, 8, 1); // 1 sept año siguiente
+      const inicioServicio = new Date(anioServicioInicio, 8, 1);       // 1 septiembre
+      const finServicio    = new Date(anioServicioInicio + 1, 8, 1);   // 1 septiembre siguiente
 
       let totalAnual = 0;
       registrosHoras.forEach((reg) => {
@@ -600,19 +1092,20 @@
       });
 
       const metaMensual = metas.metaMensual || 0;
-      const metaAnual = metas.metaAnual || 0;
+      const metaAnual   = metas.metaAnual   || 0;
 
       const faltanteMensual = Math.max(0, metaMensual - totalMensual);
-      const faltanteAnual = Math.max(0, metaAnual - totalAnual);
+      const faltanteAnual   = Math.max(0, metaAnual   - totalAnual);
 
       if (resumenMensualDetalle) {
-        if (!metaMensual && !totalMensual) {
+        if (!metaMensual && !totalMensual && !totalAnual) {
           resumenMensualDetalle.textContent = "No cargaste metas ni registros para este mes.";
         } else {
           resumenMensualDetalle.innerHTML =
             "Meta mensual: <strong>" + metaMensual.toFixed(2) + " h</strong><br>" +
-            "Horas registradas este mes: <strong>" + totalMensual.toFixed(2) + " h</strong><br>" +
-            "Faltan para la meta: <strong>" + faltanteMensual.toFixed(2) + " h</strong>";
+            "Horas registradas en el mes: <strong>" + totalMensual.toFixed(2) + " h</strong><br>" +
+            "Faltan para la meta mensual: <strong>" + faltanteMensual.toFixed(2) + " h</strong><br><br>" +
+            "Total acumulado en el año de servicio: <strong>" + totalAnual.toFixed(2) + " h</strong>";
         }
       }
 
@@ -625,28 +1118,29 @@
           anioFinServicio;
 
         if (!metaAnual && !totalAnual) {
-          resumenAnualDetalle.textContent = textoRango + ". Todavía no cargaste metas ni registros.";
+          resumenAnualDetalle.textContent =
+            textoRango + ". Todavía no cargaste metas ni registros.";
         } else {
           resumenAnualDetalle.innerHTML =
             textoRango + "<br>" +
             "Meta anual: <strong>" + metaAnual.toFixed(2) + " h</strong><br>" +
             "Horas registradas en el año de servicio: <strong>" + totalAnual.toFixed(2) + " h</strong><br>" +
-            "Faltan para la meta: <strong>" + faltanteAnual.toFixed(2) + " h</strong>";
+            "Faltan para la meta anual: <strong>" + faltanteAnual.toFixed(2) + " h</strong>";
         }
       }
+
+      renderRegistrosMes();
     }
 
     const btnGuardarMetas = document.getElementById("btn-guardar-metas");
     if (btnGuardarMetas) {
       btnGuardarMetas.addEventListener("click", () => {
         const mensual = metaMensualInput ? parseFloat(metaMensualInput.value) : 0;
-        const anual = metaAnualInput ? parseFloat(metaAnualInput.value) : 0;
+        const anual   = metaAnualInput   ? parseFloat(metaAnualInput.value)   : 0;
         metas.metaMensual = isNaN(mensual) ? 0 : mensual;
-        metas.metaAnual = isNaN(anual) ? 0 : anual;
+        metas.metaAnual   = isNaN(anual)   ? 0 : anual;
         guardarMetasEnStorage();
-        if (estadoMetas) {
-          estadoMetas.textContent = "Metas guardadas.";
-        }
+        if (estadoMetas) estadoMetas.textContent = "Metas guardadas.";
         actualizarResumenes();
       });
     }
@@ -654,27 +1148,35 @@
     const btnAgregarRegistro = document.getElementById("btn-agregar-registro");
     if (btnAgregarRegistro) {
       btnAgregarRegistro.addEventListener("click", () => {
-        const fecha = regFechaInput ? regFechaInput.value : "";
-        const horas = regHorasInput ? parseFloat(regHorasInput.value) : 0;
+        const fecha  = regFechaInput  ? regFechaInput.value : "";
+        const horas  = regHorasInput  ? parseFloat(regHorasInput.value)  : 0;
+        const cursos = regCursosInput ? parseInt(regCursosInput.value, 10) : 0;
 
         if (!fecha || isNaN(horas) || horas <= 0) {
-          if (estadoRegistro) {
-            estadoRegistro.textContent = "Cargá una fecha y horas válidas.";
-          }
+          if (estadoRegistro) estadoRegistro.textContent = "Cargá una fecha y horas válidas.";
           return;
         }
 
-        registrosHoras.push({ fecha, horas });
+        registrosHoras.push({
+          fecha,
+          horas,
+          cursos: isNaN(cursos) ? 0 : cursos
+        });
         guardarRegistrosEnStorage();
-        if (estadoRegistro) {
-          estadoRegistro.textContent = "Registro agregado.";
-        }
-        if (regHorasInput) regHorasInput.value = "";
+        if (estadoRegistro) estadoRegistro.textContent = "Registro agregado.";
+        if (regHorasInput)  regHorasInput.value  = "";
+        if (regCursosInput) regCursosInput.value = "";
         actualizarResumenes();
       });
     }
 
-    // --- Inicialización al cargar la app ---
+    if (resumenMesInput) {
+      resumenMesInput.addEventListener("change", () => {
+        actualizarResumenes();
+      });
+    }
+
+    // --- Inicialización ---
     rellenarProgramaEnInputs();
     actualizarSalidaHoy();
 
