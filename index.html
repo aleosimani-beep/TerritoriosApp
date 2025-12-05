@@ -120,17 +120,23 @@
       background: white;
       display: flex;
       flex-direction: column;
-      align-items: flex-start;
+      align-items: center;      /* centrado */
+      justify-content: center;  /* centrado */
       gap: 2px;
       font-size: 13px;
       cursor: pointer;
+      text-align: center;       /* texto centrado */
     }
     .nav-btn span {
-      font-size: 20px;
+      font-size: 22px;
       margin-bottom: 2px;
     }
     .nav-btn strong {
       font-size: 14px;
+    }
+    .nav-btn small {
+      font-size: 12px;
+      color: #666;
     }
     .nav-btn.active {
       border-color: #1b4b82;
@@ -240,22 +246,26 @@
       </div>
 
       <div class="shortcut-grid">
-        <button class="nav-btn active" data-section="salidas">
+        <button class="nav-btn active" data-section="salidas"
+                title="Salidas - Programa semanal (mañana y tarde)">
           <span>📅</span>
           <strong>Salidas</strong>
           <small>Programa semanal</small>
         </button>
-        <button class="nav-btn" data-section="territorios">
+        <button class="nav-btn" data-section="territorios"
+                title="Territorios - Información y mapa general">
           <span>🗺️</span>
           <strong>Territorios</strong>
-          <small>Información general</small>
+          <small>Mapa e info</small>
         </button>
-        <button class="nav-btn" data-section="interesados">
+        <button class="nav-btn" data-section="interesados"
+                title="Interesados - Listado y notas">
           <span>👥</span>
           <strong>Interesados</strong>
           <small>Listado y notas</small>
         </button>
-        <button class="nav-btn" data-section="informe">
+        <button class="nav-btn" data-section="informe"
+                title="Mi Informe - Registros y metas">
           <span>⏱️</span>
           <strong>Mi Informe</strong>
           <small>Registros y metas</small>
@@ -678,6 +688,9 @@
           <div id="lista-registros-mes" style="font-size:13px;color:#555;">
             No hay registros para este mes.
           </div>
+          <div id="total-mes-registro" style="margin-top:8px;font-size:13px;color:#333;font-weight:600;">
+            <!-- Total del mes seleccionado -->
+          </div>
         </div>
       </div>
 
@@ -718,7 +731,7 @@
   </main>
 
   <script>
-    console.log("Territorios App v5 READY");
+    console.log("Territorios App v5.1 READY");
 
     const diasSemana = ["Domingo", "Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado"];
 
@@ -997,6 +1010,7 @@
 
     const resumenMesInput   = document.getElementById("resumen-mes");
     const listaRegistrosMes = document.getElementById("lista-registros-mes");
+    const totalMesRegistro  = document.getElementById("total-mes-registro");
 
     function hoyISO() {
       const hoy = new Date();
@@ -1076,11 +1090,18 @@
 
       if (!registrosMes.length) {
         listaRegistrosMes.textContent = "No hay registros para este mes.";
+        if (totalMesRegistro) {
+          totalMesRegistro.textContent = "Total horas del mes seleccionado: 0.00 h";
+        }
         return;
       }
 
       listaRegistrosMes.innerHTML = "";
+      let acumuladoMes = 0;
+
       registrosMes.forEach((reg) => {
+        acumuladoMes += Number(reg.horas || 0);
+
         const fila = document.createElement("div");
         fila.style.border = "1px solid #e0e3ef";
         fila.style.borderRadius = "8px";
@@ -1126,6 +1147,11 @@
         fila.appendChild(btnEliminar);
         listaRegistrosMes.appendChild(fila);
       });
+
+      if (totalMesRegistro) {
+        totalMesRegistro.innerHTML =
+          "Total horas del mes seleccionado: <strong>" + acumuladoMes.toFixed(2) + " h</strong>";
+      }
     }
 
     function actualizarResumenes() {
