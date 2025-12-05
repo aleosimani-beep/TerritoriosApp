@@ -3,7 +3,7 @@
   "short_name": "Territorios",
   "description": "App sencilla para programa de salidas, interesados y registro de horas.",
   "start_url": ".",
-  "display": "standalone",
+  "display": "fullscreen",
   "background_color": "#f4f6fb",
   "theme_color": "#1b4b82",
   "icons": [
