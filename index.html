@@ -5,14 +5,12 @@
   <title>Territorios App</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <style>
-    /* ====== ESTILOS SENCILLOS ====== */
     * {
       box-sizing: border-box;
       margin: 0;
       padding: 0;
       font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
     }
-
     body {
       background: #f4f6fb;
       color: #222;
@@ -20,7 +18,6 @@
       flex-direction: column;
       min-height: 100vh;
     }
-
     header {
       padding: 10px 16px;
       background: #1b4b82;
@@ -29,7 +26,6 @@
       font-weight: 600;
       font-size: 18px;
     }
-
     main {
       flex: 1;
       padding: 12px 12px 64px;
@@ -37,26 +33,20 @@
       margin: 0 auto;
       width: 100%;
     }
-
-    /* Cada pantalla de la app */
     .section {
       display: none;
     }
-
     .section.active {
       display: block;
     }
-
     h2 {
       font-size: 18px;
       margin-bottom: 8px;
     }
-
     p {
       font-size: 14px;
       margin-bottom: 8px;
     }
-
     .card {
       background: white;
       border-radius: 12px;
@@ -65,12 +55,10 @@
       box-shadow: 0 2px 6px rgba(0,0,0,0.06);
       font-size: 14px;
     }
-
     .card-header {
       font-weight: 600;
       margin-bottom: 4px;
     }
-
     button {
       border: none;
       border-radius: 999px;
@@ -81,12 +69,9 @@
       cursor: pointer;
       margin-top: 6px;
     }
-
     button:active {
       transform: scale(0.98);
     }
-
-    /* ====== MENÚ DE ABAJO ====== */
     nav {
       position: fixed;
       bottom: 0;
@@ -98,7 +83,6 @@
       justify-content: space-around;
       padding: 6px 0;
     }
-
     .nav-btn {
       flex: 1;
       text-align: center;
@@ -107,16 +91,55 @@
       cursor: pointer;
       padding: 4px 0;
     }
-
     .nav-btn span {
       display: block;
       font-size: 18px;
       margin-bottom: 2px;
     }
-
     .nav-btn.active {
       color: #1b4b82;
       font-weight: 600;
+    }
+
+    .field-group {
+      margin-top: 8px;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+    label {
+      font-size: 13px;
+      font-weight: 500;
+    }
+    input[type="text"],
+    input[type="number"],
+    input[type="date"],
+    textarea {
+      padding: 6px 8px;
+      border-radius: 8px;
+      border: 1px solid #d0d4e4;
+      font-size: 14px;
+      width: 100%;
+      background: #f9f9fd;
+    }
+    textarea {
+      min-height: 60px;
+      resize: vertical;
+    }
+
+    .programa-semanal {
+      display: grid;
+      gap: 6px;
+      margin-top: 8px;
+    }
+    .fila-dia {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 14px;
+    }
+    .fila-dia span {
+      width: 90px;
     }
   </style>
 </head>
@@ -129,29 +152,23 @@
     <!-- 🏠 INICIO -->
     <section id="inicio" class="section active">
       <div class="card">
-        <div class="card-header">Inicio</div>
-        <p><strong>Salidas de hoy</strong><br>
-        Todavía no cargaste salidas para hoy.</p>
+        <div class="card-header">Salida de hoy</div>
+        <p id="salida-hoy-texto">Todavía no cargaste el programa semanal.</p>
       </div>
 
       <div class="card">
         <div class="card-header">Salidas de semana</div>
-        <p>Ver y agregar salidas (mañana y tarde por día).</p>
-      </div>
-
-      <div class="card">
-        <div class="card-header">Territorios</div>
-        <p>Mapa general, detección por colores y lista de territorios.</p>
+        <p>Cargá el programa en la pestaña <strong>Salidas</strong>. Acá siempre vas a ver la salida del día según el territorio cargado.</p>
       </div>
 
       <div class="card">
         <div class="card-header">Interesados</div>
-        <p>Listado de personas interesadas.</p>
+        <p>En la pestaña <strong>Interesados</strong> podés guardar nombre, dirección y observaciones.</p>
       </div>
 
       <div class="card">
         <div class="card-header">Mi Informe</div>
-        <p>Registro diario, metas y resumen mensual/anual.</p>
+        <p>En <strong>Informe</strong> fijás metas de horas (mensual y anual septiembre–agosto) y vas registrando tus horas diarias.</p>
       </div>
     </section>
 
@@ -160,12 +177,42 @@
       <h2>Salidas de semana</h2>
 
       <div class="card">
-        <div class="card-header">Programa semanal</div>
-        <p>Cargá el programa semanal y las salidas (mañana y tarde).</p>
-        <button id="btn-agregar-salida">Agregar salida (ejemplo)</button>
-        <div id="lista-salidas" style="margin-top:8px;font-size:13px;color:#555;">
-          Todavía no agregaste salidas.
+        <div class="card-header">Programa semanal por territorio</div>
+        <p>Ingresá el número de territorio para cada día de la semana. Se guarda en este dispositivo.</p>
+
+        <div class="programa-semanal">
+          <div class="fila-dia">
+            <span>Domingo</span>
+            <input type="text" id="territorio-dia-0" placeholder="Ej: 12" />
+          </div>
+          <div class="fila-dia">
+            <span>Lunes</span>
+            <input type="text" id="territorio-dia-1" placeholder="Ej: 5" />
+          </div>
+          <div class="fila-dia">
+            <span>Martes</span>
+            <input type="text" id="territorio-dia-2" placeholder="Ej: 8" />
+          </div>
+          <div class="fila-dia">
+            <span>Miércoles</span>
+            <input type="text" id="territorio-dia-3" placeholder="Ej: 10" />
+          </div>
+          <div class="fila-dia">
+            <span>Jueves</span>
+            <input type="text" id="territorio-dia-4" placeholder="Ej: 3" />
+          </div>
+          <div class="fila-dia">
+            <span>Viernes</span>
+            <input type="text" id="territorio-dia-5" placeholder="Ej: 7" />
+          </div>
+          <div class="fila-dia">
+            <span>Sábado</span>
+            <input type="text" id="territorio-dia-6" placeholder="Ej: 9" />
+          </div>
         </div>
+
+        <button id="btn-guardar-programa">Guardar programa semanal</button>
+        <div id="estado-programa" style="margin-top:8px;font-size:13px;color:#555;"></div>
       </div>
     </section>
 
@@ -175,11 +222,8 @@
 
       <div class="card">
         <div class="card-header">Mapa general</div>
-        <p>Mapa general + detección por color (ejemplo).</p>
-        <button id="btn-detectar">Detectar territorios</button>
-        <div id="resultado-deteccion" style="margin-top:8px;font-size:13px;color:#555;">
-          Territorios detectados: ninguno aún.
-        </div>
+        <p>Más adelante podés cargar el mapa y hacer detección por color. Por ahora es solo informativo.</p>
+        <p style="font-size:13px;color:#555;">Función en construcción.</p>
       </div>
     </section>
 
@@ -188,8 +232,29 @@
       <h2>Interesados</h2>
 
       <div class="card">
-        <div class="card-header">Listado</div>
-        <button id="btn-agregar-interesado">Agregar interesado (ejemplo)</button>
+        <div class="card-header">Nuevo interesado</div>
+
+        <div class="field-group">
+          <label for="int-nombre">Nombre</label>
+          <input type="text" id="int-nombre" placeholder="Ej: Juan Pérez" />
+        </div>
+
+        <div class="field-group">
+          <label for="int-direccion">Dirección</label>
+          <input type="text" id="int-direccion" placeholder="Ej: Av. Siempre Viva 123" />
+        </div>
+
+        <div class="field-group">
+          <label for="int-nota">Observación</label>
+          <textarea id="int-nota" placeholder="Ej: Prefiere visitas por la tarde."></textarea>
+        </div>
+
+        <button id="btn-guardar-interesado">Guardar interesado</button>
+        <div id="estado-interesado" style="margin-top:8px;font-size:13px;color:#555;"></div>
+      </div>
+
+      <div class="card">
+        <div class="card-header">Listado de interesados</div>
         <div id="lista-interesados" style="margin-top:8px;font-size:13px;color:#555;">
           Todavía no agregaste interesados.
         </div>
@@ -202,27 +267,55 @@
 
       <div class="card">
         <div class="card-header">Metas</div>
-        <p>Acá después podés configurar metas.</p>
+
+        <div class="field-group">
+          <label for="meta-mensual">Meta de horas mensual</label>
+          <input type="number" id="meta-mensual" min="0" step="0.25" placeholder="Ej: 30" />
+        </div>
+
+        <div class="field-group">
+          <label for="meta-anual">Meta de horas anual (septiembre a agosto)</label>
+          <input type="number" id="meta-anual" min="0" step="0.25" placeholder="Ej: 360" />
+        </div>
+
+        <button id="btn-guardar-metas">Guardar metas</button>
+        <div id="estado-metas" style="margin-top:8px;font-size:13px;color:#555;"></div>
       </div>
 
       <div class="card">
         <div class="card-header">Registro diario</div>
-        <p>Acá después agregamos el registro diario.</p>
+
+        <div class="field-group">
+          <label for="reg-fecha">Fecha</label>
+          <input type="date" id="reg-fecha" />
+        </div>
+
+        <div class="field-group">
+          <label for="reg-horas">Horas</label>
+          <input type="number" id="reg-horas" min="0" step="0.25" placeholder="Ej: 2.5" />
+        </div>
+
+        <button id="btn-agregar-registro">Agregar registro</button>
+        <div id="estado-registro" style="margin-top:8px;font-size:13px;color:#555;"></div>
       </div>
 
       <div class="card">
-        <div class="card-header">Resumen mensual</div>
-        <p>Ver el detalle del mes.</p>
+        <div class="card-header">Resumen mensual (mes actual)</div>
+        <div id="resumen-mensual-detalle" style="font-size:13px;color:#555;">
+          Todavía no hay registros.
+        </div>
       </div>
 
       <div class="card">
-        <div class="card-header">Resumen anual</div>
-        <p>Ver el total del año.</p>
+        <div class="card-header">Resumen anual (año de servicio)</div>
+        <div id="resumen-anual-detalle" style="font-size:13px;color:#555;">
+          Todavía no hay registros.
+        </div>
       </div>
     </section>
   </main>
 
-  <!-- ====== MENÚ INFERIOR ====== -->
+  <!-- MENÚ INFERIOR -->
   <nav>
     <div class="nav-btn active" data-section="inicio">
       <span>🏠</span>Inicio
@@ -241,71 +334,355 @@
     </div>
   </nav>
 
-  <!-- ====== CÓDIGO JS SÚPER SIMPLE ====== -->
   <script>
-    console.log("Territorios App SIMPLE READY");
+    console.log("Territorios App v2 READY");
 
-    // Cambiar de pantalla al tocar el menú
+    const diasSemana = ["Domingo", "Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado"];
+
+    // --- Navegación entre secciones ---
     const sections = document.querySelectorAll(".section");
     const navButtons = document.querySelectorAll(".nav-btn");
 
     function mostrarSeccion(id) {
-      sections.forEach(sec => {
+      sections.forEach((sec) => {
         sec.classList.toggle("active", sec.id === id);
       });
-      navButtons.forEach(btn => {
+      navButtons.forEach((btn) => {
         btn.classList.toggle("active", btn.dataset.section === id);
       });
     }
 
-    navButtons.forEach(btn => {
+    navButtons.forEach((btn) => {
       btn.addEventListener("click", () => {
         const id = btn.dataset.section;
         mostrarSeccion(id);
       });
     });
 
-    // Un poco de "vida" para que veas que responde
+    // --- SALIDAS: programa semanal de territorios ---
+    function obtenerProgramaGuardado() {
+      const guardado = localStorage.getItem("territorios_programaSemanal");
+      if (!guardado) return {};
+      try {
+        return JSON.parse(guardado) || {};
+      } catch (e) {
+        return {};
+      }
+    }
 
-    // Salidas
-    const btnSalida = document.getElementById("btn-agregar-salida");
-    const listaSalidas = document.getElementById("lista-salidas");
-    let numSalidas = 0;
-
-    if (btnSalida && listaSalidas) {
-      btnSalida.addEventListener("click", () => {
-        numSalidas++;
-        if (numSalidas === 1) listaSalidas.textContent = "";
-        const p = document.createElement("p");
-        p.textContent = "Salida " + numSalidas + " agregada (ejemplo).";
-        listaSalidas.appendChild(p);
+    function rellenarProgramaEnInputs() {
+      const programa = obtenerProgramaGuardado();
+      diasSemana.forEach((_, idx) => {
+        const input = document.getElementById("territorio-dia-" + idx);
+        if (input && programa[idx] !== undefined) {
+          input.value = programa[idx];
+        }
       });
     }
 
-    // Territorios
-    const btnDetectar = document.getElementById("btn-detectar");
-    const resDeteccion = document.getElementById("resultado-deteccion");
+    function actualizarSalidaHoy(programaOpcional) {
+      const salidaElem = document.getElementById("salida-hoy-texto");
+      if (!salidaElem) return;
 
-    if (btnDetectar && resDeteccion) {
-      btnDetectar.addEventListener("click", () => {
-        resDeteccion.textContent = "Territorios detectados: 12 (ejemplo).";
+      let programa = programaOpcional;
+      if (!programa) {
+        programa = obtenerProgramaGuardado();
+      }
+
+      const hoy = new Date();
+      const idx = hoy.getDay(); // 0=Domingo ... 6=Sábado
+      const valor = programa && programa[idx] ? String(programa[idx]).trim() : "";
+
+      if (valor) {
+        salidaElem.textContent = "Hoy te toca el territorio: " + valor;
+      } else {
+        salidaElem.textContent = "Todavía no cargaste territorio para hoy.";
+      }
+    }
+
+    const btnGuardarPrograma = document.getElementById("btn-guardar-programa");
+    const estadoPrograma = document.getElementById("estado-programa");
+
+    if (btnGuardarPrograma) {
+      btnGuardarPrograma.addEventListener("click", () => {
+        const programa = {};
+        diasSemana.forEach((_, idx) => {
+          const input = document.getElementById("territorio-dia-" + idx);
+          programa[idx] = input ? input.value.trim() : "";
+        });
+        localStorage.setItem("territorios_programaSemanal", JSON.stringify(programa));
+        if (estadoPrograma) {
+          estadoPrograma.textContent = "Programa semanal guardado.";
+        }
+        actualizarSalidaHoy(programa);
       });
     }
 
-    // Interesados
-    const btnInteresado = document.getElementById("btn-agregar-interesado");
-    const listaInteresados = document.getElementById("lista-interesados");
-    let numInteresados = 0;
+    // --- INTERESADOS ---
+    let listaInteresadosData = [];
+    const contenedorInteresados = document.getElementById("lista-interesados");
+    const estadoInteresado = document.getElementById("estado-interesado");
 
-    if (btnInteresado && listaInteresados) {
-      btnInteresado.addEventListener("click", () => {
-        numInteresados++;
-        if (numInteresados === 1) listaInteresados.textContent = "";
-        const p = document.createElement("p");
-        p.textContent = "Interesado " + numInteresados + " agregado (ejemplo).";
-        listaInteresados.appendChild(p);
+    function cargarInteresadosDesdeStorage() {
+      const guardado = localStorage.getItem("interesados_lista");
+      if (!guardado) {
+        listaInteresadosData = [];
+        return;
+      }
+      try {
+        listaInteresadosData = JSON.parse(guardado) || [];
+      } catch (e) {
+        listaInteresadosData = [];
+      }
+    }
+
+    function guardarInteresadosEnStorage() {
+      localStorage.setItem("interesados_lista", JSON.stringify(listaInteresadosData));
+    }
+
+    function renderInteresados() {
+      if (!contenedorInteresados) return;
+      if (!listaInteresadosData.length) {
+        contenedorInteresados.textContent = "Todavía no agregaste interesados.";
+        return;
+      }
+
+      contenedorInteresados.innerHTML = "";
+      listaInteresadosData.forEach((item) => {
+        const card = document.createElement("div");
+        card.style.border = "1px solid #e0e3ef";
+        card.style.borderRadius = "8px";
+        card.style.padding = "8px";
+        card.style.marginBottom = "6px";
+        card.style.background = "#f9f9fd";
+
+        const nombre = document.createElement("div");
+        nombre.style.fontWeight = "600";
+        nombre.textContent = item.nombre || "(Sin nombre)";
+
+        const dir = document.createElement("div");
+        dir.style.fontSize = "13px";
+        dir.textContent = item.direccion || "";
+
+        const nota = document.createElement("div");
+        nota.style.fontSize = "12px";
+        nota.style.color = "#555";
+        nota.textContent = item.nota || "";
+
+        card.appendChild(nombre);
+        if (item.direccion) card.appendChild(dir);
+        if (item.nota) card.appendChild(nota);
+
+        contenedorInteresados.appendChild(card);
       });
     }
+
+    const btnGuardarInteresado = document.getElementById("btn-guardar-interesado");
+
+    if (btnGuardarInteresado) {
+      btnGuardarInteresado.addEventListener("click", () => {
+        const nombreEl = document.getElementById("int-nombre");
+        const dirEl = document.getElementById("int-direccion");
+        const notaEl = document.getElementById("int-nota");
+
+        const nombre = nombreEl ? nombreEl.value.trim() : "";
+        const direccion = dirEl ? dirEl.value.trim() : "";
+        const nota = notaEl ? notaEl.value.trim() : "";
+
+        if (!nombre && !direccion && !nota) {
+          if (estadoInteresado) {
+            estadoInteresado.textContent = "Cargá al menos un dato para guardar.";
+          }
+          return;
+        }
+
+        listaInteresadosData.push({ nombre, direccion, nota });
+        guardarInteresadosEnStorage();
+        renderInteresados();
+
+        if (estadoInteresado) {
+          estadoInteresado.textContent = "Interesado guardado.";
+        }
+        if (nombreEl) nombreEl.value = "";
+        if (dirEl) dirEl.value = "";
+        if (notaEl) notaEl.value = "";
+      });
+    }
+
+    // --- INFORME: metas y horas ---
+    let metas = { metaMensual: 0, metaAnual: 0 };
+    let registrosHoras = [];
+
+    const metaMensualInput = document.getElementById("meta-mensual");
+    const metaAnualInput = document.getElementById("meta-anual");
+    const estadoMetas = document.getElementById("estado-metas");
+
+    const regFechaInput = document.getElementById("reg-fecha");
+    const regHorasInput = document.getElementById("reg-horas");
+    const estadoRegistro = document.getElementById("estado-registro");
+
+    const resumenMensualDetalle = document.getElementById("resumen-mensual-detalle");
+    const resumenAnualDetalle = document.getElementById("resumen-anual-detalle");
+
+    function hoyISO() {
+      const hoy = new Date();
+      const y = hoy.getFullYear();
+      const m = String(hoy.getMonth() + 1).padStart(2, "0");
+      const d = String(hoy.getDate()).padStart(2, "0");
+      return y + "-" + m + "-" + d;
+    }
+
+    function cargarMetasYRegistrosDesdeStorage() {
+      const metasGuardadas = localStorage.getItem("informe_metas");
+      if (metasGuardadas) {
+        try {
+          const obj = JSON.parse(metasGuardadas);
+          metas.metaMensual = parseFloat(obj.metaMensual) || 0;
+          metas.metaAnual = parseFloat(obj.metaAnual) || 0;
+        } catch (e) {}
+      }
+
+      const regsGuardados = localStorage.getItem("informe_registrosHoras");
+      if (regsGuardados) {
+        try {
+          registrosHoras = JSON.parse(regsGuardados) || [];
+        } catch (e) {
+          registrosHoras = [];
+        }
+      }
+
+      if (metaMensualInput) metaMensualInput.value = metas.metaMensual || "";
+      if (metaAnualInput) metaAnualInput.value = metas.metaAnual || "";
+      if (regFechaInput && !regFechaInput.value) regFechaInput.value = hoyISO();
+    }
+
+    function guardarMetasEnStorage() {
+      localStorage.setItem("informe_metas", JSON.stringify(metas));
+    }
+
+    function guardarRegistrosEnStorage() {
+      localStorage.setItem("informe_registrosHoras", JSON.stringify(registrosHoras));
+    }
+
+    function actualizarResumenes() {
+      const ahora = new Date();
+      const mesActual = ahora.getMonth(); // 0-11
+      const anioActual = ahora.getFullYear();
+
+      // Total mensual (mes calendario actual)
+      let totalMensual = 0;
+      registrosHoras.forEach((reg) => {
+        if (!reg.fecha) return;
+        const fecha = new Date(reg.fecha + "T00:00:00");
+        if (fecha.getMonth() === mesActual && fecha.getFullYear() === anioActual) {
+          totalMensual += Number(reg.horas) || 0;
+        }
+      });
+
+      // Año de servicio: septiembre a agosto
+      let anioServicioInicio;
+      if (mesActual >= 8) {
+        // Septiembre (8) a diciembre
+        anioServicioInicio = anioActual;
+      } else {
+        anioServicioInicio = anioActual - 1;
+      }
+      const inicioServicio = new Date(anioServicioInicio, 8, 1); // 1 sept
+      const finServicio = new Date(anioServicioInicio + 1, 8, 1); // 1 sept año siguiente
+
+      let totalAnual = 0;
+      registrosHoras.forEach((reg) => {
+        if (!reg.fecha) return;
+        const fecha = new Date(reg.fecha + "T00:00:00");
+        if (fecha >= inicioServicio && fecha < finServicio) {
+          totalAnual += Number(reg.horas) || 0;
+        }
+      });
+
+      const metaMensual = metas.metaMensual || 0;
+      const metaAnual = metas.metaAnual || 0;
+
+      const faltanteMensual = Math.max(0, metaMensual - totalMensual);
+      const faltanteAnual = Math.max(0, metaAnual - totalAnual);
+
+      if (resumenMensualDetalle) {
+        if (!metaMensual && !totalMensual) {
+          resumenMensualDetalle.textContent = "No cargaste metas ni registros para este mes.";
+        } else {
+          resumenMensualDetalle.innerHTML =
+            "Meta mensual: <strong>" + metaMensual.toFixed(2) + " h</strong><br>" +
+            "Horas registradas este mes: <strong>" + totalMensual.toFixed(2) + " h</strong><br>" +
+            "Faltan para la meta: <strong>" + faltanteMensual.toFixed(2) + " h</strong>";
+        }
+      }
+
+      if (resumenAnualDetalle) {
+        const anioFinServicio = anioServicioInicio + 1;
+        const textoRango =
+          "Año de servicio: septiembre " +
+          anioServicioInicio +
+          " a agosto " +
+          anioFinServicio;
+
+        if (!metaAnual && !totalAnual) {
+          resumenAnualDetalle.textContent = textoRango + ". Todavía no cargaste metas ni registros.";
+        } else {
+          resumenAnualDetalle.innerHTML =
+            textoRango + "<br>" +
+            "Meta anual: <strong>" + metaAnual.toFixed(2) + " h</strong><br>" +
+            "Horas registradas en el año de servicio: <strong>" + totalAnual.toFixed(2) + " h</strong><br>" +
+            "Faltan para la meta: <strong>" + faltanteAnual.toFixed(2) + " h</strong>";
+        }
+      }
+    }
+
+    const btnGuardarMetas = document.getElementById("btn-guardar-metas");
+    if (btnGuardarMetas) {
+      btnGuardarMetas.addEventListener("click", () => {
+        const mensual = metaMensualInput ? parseFloat(metaMensualInput.value) : 0;
+        const anual = metaAnualInput ? parseFloat(metaAnualInput.value) : 0;
+        metas.metaMensual = isNaN(mensual) ? 0 : mensual;
+        metas.metaAnual = isNaN(anual) ? 0 : anual;
+        guardarMetasEnStorage();
+        if (estadoMetas) {
+          estadoMetas.textContent = "Metas guardadas.";
+        }
+        actualizarResumenes();
+      });
+    }
+
+    const btnAgregarRegistro = document.getElementById("btn-agregar-registro");
+    if (btnAgregarRegistro) {
+      btnAgregarRegistro.addEventListener("click", () => {
+        const fecha = regFechaInput ? regFechaInput.value : "";
+        const horas = regHorasInput ? parseFloat(regHorasInput.value) : 0;
+
+        if (!fecha || isNaN(horas) || horas <= 0) {
+          if (estadoRegistro) {
+            estadoRegistro.textContent = "Cargá una fecha y horas válidas.";
+          }
+          return;
+        }
+
+        registrosHoras.push({ fecha, horas });
+        guardarRegistrosEnStorage();
+        if (estadoRegistro) {
+          estadoRegistro.textContent = "Registro agregado.";
+        }
+        if (regHorasInput) regHorasInput.value = "";
+        actualizarResumenes();
+      });
+    }
+
+    // --- Inicialización al cargar la app ---
+    rellenarProgramaEnInputs();
+    actualizarSalidaHoy();
+
+    cargarInteresadosDesdeStorage();
+    renderInteresados();
+
+    cargarMetasYRegistrosDesdeStorage();
+    actualizarResumenes();
   </script>
 </body>
 </html>
