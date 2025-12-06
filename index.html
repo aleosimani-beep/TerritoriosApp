@@ -2,1401 +2,1038 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8" />
-  <title>Territorios App</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-  <meta name="theme-color" content="#1b4b82" />
-  <meta name="mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <link rel="manifest" href="manifest.json">
+  <title>TerritoriosApp</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
   <style>
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
+    :root {
       font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-    }
-    html, body {
-      height: 100%;
+      color: #111827;
+      background: #e5e7eb;
     }
     body {
-      background: radial-gradient(circle at top, #e5f0ff 0, #f4f6fb 45%, #edf0ff 100%);
-      color: #222;
+      margin: 0;
+      min-height: 100vh;
       display: flex;
-      flex-direction: column;
+      justify-content: center;
+      background: radial-gradient(circle at top, #eef2ff 0, #e5e7eb 40%, #d1d5db 100%);
     }
-
-    /* Contenedor tipo app */
-    .app-shell {
-      max-width: 480px;
+    .app {
+      background: #f9fafb;
+      margin: 0.75rem;
+      margin-bottom: 3.5rem;
+      border-radius: 1rem;
+      max-width: 960px;
       width: 100%;
-      margin: 0 auto;
-      background: rgba(255,255,255,0.9);
-      backdrop-filter: blur(12px);
-      box-shadow: 0 8px 24px rgba(15, 23, 42, 0.15);
-      border-radius: 24px;
-      overflow: hidden;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.15);
       display: flex;
       flex-direction: column;
-      height: 100vh;
+      overflow: hidden;
     }
-
     header {
-      padding: 14px 16px 10px;
-      background: linear-gradient(90deg, #1b4b82, #2462b0);
-      color: white;
-      text-align: center;
-      font-weight: 600;
-      font-size: 18px;
-      cursor: pointer;
-      position: relative;
+      padding: 0.9rem 1.1rem;
+      background: linear-gradient(135deg,#2563eb,#4f46e5);
+      color: #f9fafb;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
     }
-    header::after {
-      content: "TerritoriosApp";
-      position: absolute;
-      left: 16px;
-      top: 50%;
-      transform: translateY(-50%);
-      font-size: 13px;
-      font-weight: 400;
+    header h1 {
+      margin: 0;
+      font-size: 1.25rem;
+    }
+    header .subtitle {
+      font-size: 0.8rem;
       opacity: 0.9;
+    }
+    .badge {
+      background: rgba(15,23,42,0.25);
+      border-radius: 999px;
+      padding: 0.15rem 0.7rem;
+      font-size: 0.75rem;
     }
 
     main {
+      padding: 1rem 1.1rem 0.5rem 1.1rem;
       flex: 1;
-      padding: 12px 12px 20px;
-      width: 100%;
       overflow-y: auto;
-      scroll-behavior: smooth;
-    }
-
-    .section {
-      display: none;
-      animation: fadeIn 0.18s ease-out;
-    }
-    .section.active {
-      display: block;
-    }
-
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(4px); }
-      to   { opacity: 1; transform: translateY(0); }
+      box-sizing: border-box;
     }
 
     h2 {
-      font-size: 18px;
-      margin-bottom: 8px;
+      font-size: 1.1rem;
+      margin: 0 0 0.6rem 0;
+      color: #111827;
+    }
+    h3 {
+      font-size: 0.95rem;
+      margin: 0.7rem 0 0.4rem 0;
+      color: #111827;
     }
     p {
-      font-size: 14px;
-      margin-bottom: 8px;
+      margin: 0.3rem 0;
+    }
+    .small-text {
+      font-size: 0.78rem;
+      color: #6b7280;
     }
 
     .card {
-      border-radius: 16px;
-      padding: 12px;
-      margin-bottom: 12px;
-      box-shadow: 0 2px 8px rgba(15,23,42,0.08);
-      font-size: 14px;
+      background: #ffffff;
+      border-radius: 0.9rem;
+      padding: 0.8rem 0.9rem;
+      margin-bottom: 0.9rem;
+      border: 1px solid #e5e7eb;
     }
     .card-header {
-      font-weight: 600;
-      margin-bottom: 4px;
       display: flex;
+      justify-content: space-between;
       align-items: center;
-      gap: 6px;
+      margin-bottom: 0.4rem;
     }
-
-    /* Colores por sección */
-    #inicio .card {
-      background: #fff4e0;
-    }
-    #salidas .card {
-      background: #e6f4ff;
-    }
-    #territorios .card {
-      background: #e8fff2;
-    }
-    #interesados .card {
-      background: #f8e8ff;
-    }
-    #informe .card {
-      background: #fff0f5;
-    }
-
-    /* Tarjeta destacada de INICIO */
-    .card.destacada {
-      padding: 18px;
-      margin-bottom: 18px;
-    }
-    .card.destacada .card-header {
-      font-size: 16px;
-    }
-    #salida-hoy-texto {
-      font-size: 16px;
-      line-height: 1.4;
-      margin-top: 4px;
-    }
-
-    button {
-      border: none;
+    .chip {
+      display: inline-block;
+      padding: 0.15rem 0.5rem;
       border-radius: 999px;
-      padding: 8px 14px;
-      font-size: 14px;
-      background: #1b4b82;
-      color: white;
-      cursor: pointer;
-      margin-top: 6px;
-      display: inline-flex;
-      align-items: center;
-      gap: 4px;
-    }
-    button:active {
-      transform: scale(0.97);
+      background: #e5e7eb;
+      font-size: 0.75rem;
+      color: #374151;
     }
 
-    /* Accesos directos en INICIO tipo app */
-    .shortcut-grid {
-      display: grid;
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-      gap: 10px;
-    }
-    .nav-btn {
-      border-radius: 18px;
-      padding: 12px 8px;
-      border: 1px solid #d5d8e3;
-      background: white;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      gap: 4px;
-      font-size: 13px;
-      cursor: pointer;
-      text-align: center;
-      transition: transform 0.08s ease, box-shadow 0.08s ease, border-color 0.08s ease;
-    }
-    .nav-btn span {
-      font-size: 24px;
-      margin-bottom: 2px;
-    }
-    .nav-btn strong {
-      font-size: 14px;
-    }
-    .nav-btn small {
-      font-size: 12px;
-      color: #666;
-    }
-    .nav-btn.active {
-      border-color: #1b4b82;
-      box-shadow: 0 0 0 1px rgba(27,75,130,0.3), 0 4px 10px rgba(15,23,42,0.12);
-      transform: translateY(-1px);
-    }
-
-    .field-group {
-      margin-top: 8px;
-      display: flex;
-      flex-direction: column;
-      gap: 4px;
-    }
     label {
-      font-size: 13px;
-      font-weight: 500;
+      font-size: 0.78rem;
+      display: block;
+      margin-bottom: 0.15rem;
+      color: #374151;
     }
     input[type="text"],
-    input[type="number"],
     input[type="date"],
-    input[type="month"],
-    textarea {
-      padding: 7px 9px;
-      border-radius: 10px;
-      border: 1px solid #d0d4e4;
-      font-size: 14px;
+    input[type="time"],
+    input[type="number"],
+    textarea,
+    select {
       width: 100%;
-      background: #f9f9fd;
+      box-sizing: border-box;
+      font-size: 0.85rem;
+      padding: 0.45rem 0.5rem;
+      border-radius: 0.5rem;
+      border: 1px solid #d1d5db;
+      background: #ffffff;
+      margin-bottom: 0.45rem;
+    }
+    input:focus,
+    textarea:focus,
+    select:focus {
+      outline: 2px solid #2563eb33;
+      border-color: #2563eb;
     }
     textarea {
       min-height: 60px;
       resize: vertical;
     }
 
-    /* SALIDAS: días con menú desplegable */
-    .programa-semanal {
-      display: flex;
-      flex-direction: column;
-      gap: 6px;
-      margin-top: 8px;
-    }
-    details.dia-detalle {
-      border-radius: 12px;
-      padding: 6px 8px;
-      background: rgba(27,75,130,0.04);
-    }
-    details.dia-detalle summary {
+    button {
+      border: none;
+      border-radius: 999px;
+      padding: 0.45rem 0.9rem;
+      font-size: 0.85rem;
       cursor: pointer;
-      font-size: 14px;
+      background: #2563eb;
+      color: #f9fafb;
       font-weight: 600;
-      list-style: none;
     }
-    details.dia-detalle summary::marker {
-      content: "";
+    button:active {
+      transform: scale(0.97);
     }
-    .turno {
-      margin-top: 6px;
-      padding: 6px 8px;
-      border-radius: 10px;
-      background: #ffffffdd;
-      border: 1px solid #dde0f3;
+    .btn-secondary {
+      background: #6b7280;
+      color: #f9fafb;
     }
-    .turno h4 {
-      font-size: 13px;
-      margin-bottom: 4px;
+    .btn-danger {
+      background: #dc2626;
+    }
+    .btn-small {
+      font-size: 0.75rem;
+      padding: 0.25rem 0.55rem;
+    }
+    .btn-outline {
+      background: transparent;
+      border: 1px solid #d1d5db;
+      color: #111827;
     }
 
-    /* Tabs Mi Informe */
-    .tabs-informe {
-      display: flex;
-      gap: 8px;
-      margin: 8px 0 10px;
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.78rem;
+      margin-top: 0.3rem;
     }
-    .tab-btn {
-      flex: 1;
-      border-radius: 999px;
-      border: 1px solid #d0a4c5;
-      background: #ffe4f2;
-      padding: 6px 10px;
-      font-size: 13px;
-      cursor: pointer;
+    th, td {
+      border: 1px solid #e5e7eb;
+      padding: 0.25rem 0.3rem;
+      text-align: left;
     }
-    .tab-btn.active {
-      background: #d8347f;
-      color: white;
-      border-color: #d8347f;
+    th {
+      background: #f3f4f6;
       font-weight: 600;
     }
-    .tab-section {
+
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0.1rem 0.5rem;
+      border-radius: 999px;
+      font-size: 0.7rem;
+    }
+    .pill-estado {
+      background: #eef2ff;
+      color: #4338ca;
+    }
+
+    .status-ok {
+      color: #16a34a;
+      font-size: 0.78rem;
+      margin-top: 0.25rem;
+    }
+    .status-error {
+      color: #b91c1c;
+      font-size: 0.78rem;
+      margin-top: 0.25rem;
+    }
+
+    /* Layouts específicos */
+
+    .salidas-grid {
+      display: grid;
+      grid-template-columns: 1.2fr 1fr 1fr;
+      gap: 0.2rem;
+      align-items: center;
+    }
+    .salidas-grid-header div {
+      font-size: 0.78rem;
+      font-weight: 600;
+      color: #374151;
+    }
+
+    .territorio-color-preview {
+      width: 1.2rem;
+      height: 1.2rem;
+      border-radius: 0.4rem;
+      border: 1px solid #d1d5db;
+      margin-left: 0.35rem;
+    }
+    .fila-territorio {
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+
+    .flex-row {
+      display: flex;
+      gap: 0.5rem;
+    }
+    .flex-1 {
+      flex: 1;
+    }
+
+    .interesado-card {
+      border-radius: 0.7rem;
+      border: 1px solid #e5e7eb;
+      padding: 0.5rem 0.7rem;
+      margin-top: 0.3rem;
+      background: #ffffff;
+    }
+    .interesado-nombre {
+      font-size: 0.85rem;
+      font-weight: 600;
+      margin-bottom: 0.1rem;
+    }
+    .interesado-detalle {
+      font-size: 0.75rem;
+      color: #4b5563;
+    }
+
+    .resumen-linea {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.8rem;
+      margin-top: 0.2rem;
+    }
+
+    /* NAV inferior */
+    .bottom-nav {
+      position: fixed;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: #111827;
+      color: #e5e7eb;
+      display: flex;
+      justify-content: space-around;
+      align-items: center;
+      padding: 0.25rem 0;
+      font-size: 0.75rem;
+      z-index: 20;
+    }
+    .bottom-nav button {
+      background: transparent;
+      border-radius: 0;
+      border: none;
+      color: #9ca3af;
+      font-weight: 400;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.05rem;
+      padding: 0.2rem 0.5rem;
+    }
+    .bottom-nav button span.icon {
+      font-size: 1.1rem;
+      line-height: 1;
+    }
+    .bottom-nav button.active {
+      color: #f9fafb;
+      border-top: 2px solid #22c55e;
+    }
+
+    .section {
       display: none;
     }
-    .tab-section.active {
+    .section.active {
       display: block;
+    }
+
+    @media (min-width: 900px) {
+      .bottom-nav {
+        max-width: 960px;
+        margin: 0 auto;
+        border-radius: 999px 999px 0 0;
+      }
     }
   </style>
 </head>
 <body>
-  <div class="app-shell">
+  <div class="app">
     <header>
-      TERRITORIOS APP
+      <div>
+        <h1>TerritoriosApp</h1>
+        <div class="subtitle">Salidas, territorios, interesados e informe personal</div>
+      </div>
+      <div class="badge">v1 · localStorage</div>
     </header>
 
     <main>
-      <!-- 🏠 INICIO -->
-      <section id="inicio" class="section active">
-        <div class="card destacada">
-          <div class="card-header">Salida de hoy</div>
-          <p id="salida-hoy-texto">Todavía no cargaste el programa semanal.</p>
-        </div>
-
-        <div class="shortcut-grid">
-          <button class="nav-btn active" data-section="salidas"
-                  title="Salidas - Programa semanal (mañana y tarde)">
-            <span>📅</span>
-            <strong>Salidas</strong>
-            <small>Programa semanal</small>
-          </button>
-          <button class="nav-btn" data-section="territorios"
-                  title="Territorios - Información y mapa general">
-            <span>🗺️</span>
-            <strong>Territorios</strong>
-            <small>Mapa e info</small>
-          </button>
-          <button class="nav-btn" data-section="interesados"
-                  title="Interesados - Listado y notas">
-            <span>👥</span>
-            <strong>Interesados</strong>
-            <small>Listado y notas</small>
-          </button>
-          <button class="nav-btn" data-section="informe"
-                  title="Mi Informe - Registros y metas">
-            <span>⏱️</span>
-            <strong>Mi Informe</strong>
-            <small>Registros y metas</small>
-          </button>
-        </div>
-      </section>
-
-      <!-- 📅 SALIDAS -->
-      <section id="salidas" class="section">
-        <h2>Salidas de semana</h2>
-
+      <!-- INICIO -->
+      <section id="sec-inicio" class="section active">
         <div class="card">
-          <div class="card-header">Programa semanal (mañana y tarde)</div>
-          <p>Para cada día cargá hora, lugar, conductor y territorio para <strong>mañana</strong> y <strong>tarde</strong>. Se guarda en este dispositivo.</p>
-
-          <div class="programa-semanal">
-            <!-- DOMINGO (0) -->
-            <details class="dia-detalle" open>
-              <summary>Domingo</summary>
-              <div class="turno">
-                <h4>Mañana</h4>
-                <div class="field-group">
-                  <label for="d0-man-hora">Hora</label>
-                  <input type="text" id="d0-man-hora" placeholder="Ej: 9:30" />
-                </div>
-                <div class="field-group">
-                  <label for="d0-man-lugar">Lugar</label>
-                  <input type="text" id="d0-man-lugar" placeholder="Ej: Salida Salón" />
-                </div>
-                <div class="field-group">
-                  <label for="d0-man-conductor">Conductor</label>
-                  <input type="text" id="d0-man-conductor" placeholder="Ej: Juan" />
-                </div>
-                <div class="field-group">
-                  <label for="d0-man-territorio">Territorio</label>
-                  <input type="text" id="d0-man-territorio" placeholder="Ej: 12" />
-                </div>
-              </div>
-
-              <div class="turno">
-                <h4>Tarde</h4>
-                <div class="field-group">
-                  <label for="d0-tar-hora">Hora</label>
-                  <input type="text" id="d0-tar-hora" placeholder="Ej: 15:30" />
-                </div>
-                <div class="field-group">
-                  <label for="d0-tar-lugar">Lugar</label>
-                  <input type="text" id="d0-tar-lugar" placeholder="Ej: Salida Salón" />
-                </div>
-                <div class="field-group">
-                  <label for="d0-tar-conductor">Conductor</label>
-                  <input type="text" id="d0-tar-conductor" placeholder="Ej: Pedro" />
-                </div>
-                <div class="field-group">
-                  <label for="d0-tar-territorio">Territorio</label>
-                  <input type="text" id="d0-tar-territorio" placeholder="Ej: 14" />
-                </div>
-              </div>
-            </details>
-
-            <!-- LUNES (1) -->
-            <details class="dia-detalle">
-              <summary>Lunes</summary>
-              <div class="turno">
-                <h4>Mañana</h4>
-                <div class="field-group">
-                  <label for="d1-man-hora">Hora</label>
-                  <input type="text" id="d1-man-hora" placeholder="Ej: 9:30" />
-                </div>
-                <div class="field-group">
-                  <label for="d1-man-lugar">Lugar</label>
-                  <input type="text" id="d1-man-lugar" placeholder="Ej: Salida Salón" />
-                </div>
-                <div class="field-group">
-                  <label for="d1-man-conductor">Conductor</label>
-                  <input type="text" id="d1-man-conductor" placeholder="Ej: Juan" />
-                </div>
-                <div class="field-group">
-                  <label for="d1-man-territorio">Territorio</label>
-                  <input type="text" id="d1-man-territorio" placeholder="Ej: 5" />
-                </div>
-              </div>
-
-              <div class="turno">
-                <h4>Tarde</h4>
-                <div class="field-group">
-                  <label for="d1-tar-hora">Hora</label>
-                  <input type="text" id="d1-tar-hora" placeholder="Ej: 15:30" />
-                </div>
-                <div class="field-group">
-                  <label for="d1-tar-lugar">Lugar</label>
-                  <input type="text" id="d1-tar-lugar" placeholder="Ej: Salida Salón" />
-                </div>
-                <div class="field-group">
-                  <label for="d1-tar-conductor">Conductor</label>
-                  <input type="text" id="d1-tar-conductor" placeholder="Ej: Pedro" />
-                </div>
-                <div class="field-group">
-                  <label for="d1-tar-territorio">Territorio</label>
-                  <input type="text" id="d1-tar-territorio" placeholder="Ej: 8" />
-                </div>
-              </div>
-            </details>
-
-            <!-- MARTES (2) -->
-            <details class="dia-detalle">
-              <summary>Martes</summary>
-              <div class="turno">
-                <h4>Mañana</h4>
-                <div class="field-group">
-                  <label for="d2-man-hora">Hora</label>
-                  <input type="text" id="d2-man-hora" placeholder="Ej: 9:30" />
-                </div>
-                <div class="field-group">
-                  <label for="d2-man-lugar">Lugar</label>
-                  <input type="text" id="d2-man-lugar" placeholder="Ej: Salida Salón" />
-                </div>
-                <div class="field-group">
-                  <label for="d2-man-conductor">Conductor</label>
-                  <input type="text" id="d2-man-conductor" placeholder="Ej: Juan" />
-                </div>
-                <div class="field-group">
-                  <label for="d2-man-territorio">Territorio</label>
-                  <input type="text" id="d2-man-territorio" placeholder="Ej: 8" />
-                </div>
-              </div>
-
-              <div class="turno">
-                <h4>Tarde</h4>
-                <div class="field-group">
-                  <label for="d2-tar-hora">Hora</label>
-                  <input type="text" id="d2-tar-hora" placeholder="Ej: 15:30" />
-                </div>
-                <div class="field-group">
-                  <label for="d2-tar-lugar">Lugar</label>
-                  <input type="text" id="d2-tar-lugar" placeholder="Ej: Salida Salón" />
-                </div>
-                <div class="field-group">
-                  <label for="d2-tar-conductor">Conductor</label>
-                  <input type="text" id="d2-tar-conductor" placeholder="Ej: Pedro" />
-                </div>
-                <div class="field-group">
-                  <label for="d2-tar-territorio">Territorio</label>
-                  <input type="text" id="d2-tar-territorio" placeholder="Ej: 10" />
-                </div>
-              </div>
-            </details>
-
-            <!-- MIÉRCOLES (3) -->
-            <details class="dia-detalle">
-              <summary>Miércoles</summary>
-              <div class="turno">
-                <h4>Mañana</h4>
-                <div class="field-group">
-                  <label for="d3-man-hora">Hora</label>
-                  <input type="text" id="d3-man-hora" placeholder="Ej: 9:30" />
-                </div>
-                <div class="field-group">
-                  <label for="d3-man-lugar">Lugar</label>
-                  <input type="text" id="d3-man-lugar" placeholder="Ej: Salida Salón" />
-                </div>
-                <div class="field-group">
-                  <label for="d3-man-conductor">Conductor</label>
-                  <input type="text" id="d3-man-conductor" placeholder="Ej: Juan" />
-                </div>
-                <div class="field-group">
-                  <label for="d3-man-territorio">Territorio</label>
-                  <input type="text" id="d3-man-territorio" placeholder="Ej: 10" />
-                </div>
-              </div>
-
-              <div class="turno">
-                <h4>Tarde</h4>
-                <div class="field-group">
-                  <label for="d3-tar-hora">Hora</label>
-                  <input type="text" id="d3-tar-hora" placeholder="Ej: 15:30" />
-                </div>
-                <div class="field-group">
-                  <label for="d3-tar-lugar">Lugar</label>
-                  <input type="text" id="d3-tar-lugar" placeholder="Ej: Salida Salón" />
-                </div>
-                <div class="field-group">
-                  <label for="d3-tar-conductor">Conductor</label>
-                  <input type="text" id="d3-tar-conductor" placeholder="Ej: Pedro" />
-                </div>
-                <div class="field-group">
-                  <label for="d3-tar-territorio">Territorio</label>
-                  <input type="text" id="d3-tar-territorio" placeholder="Ej: 11" />
-                </div>
-              </div>
-            </details>
-
-            <!-- JUEVES (4) -->
-            <details class="dia-detalle">
-              <summary>Jueves</summary>
-              <div class="turno">
-                <h4>Mañana</h4>
-                <div class="field-group">
-                  <label for="d4-man-hora">Hora</label>
-                  <input type="text" id="d4-man-hora" placeholder="Ej: 9:30" />
-                </div>
-                <div class="field-group">
-                  <label for="d4-man-lugar">Lugar</label>
-                  <input type="text" id="d4-man-lugar" placeholder="Ej: Salida Salón" />
-                </div>
-                <div class="field-group">
-                  <label for="d4-man-conductor">Conductor</label>
-                  <input type="text" id="d4-man-conductor" placeholder="Ej: Juan" />
-                </div>
-                <div class="field-group">
-                  <label for="d4-man-territorio">Territorio</label>
-                  <input type="text" id="d4-man-territorio" placeholder="Ej: 3" />
-                </div>
-              </div>
-
-              <div class="turno">
-                <h4>Tarde</h4>
-                <div class="field-group">
-                  <label for="d4-tar-hora">Hora</label>
-                  <input type="text" id="d4-tar-hora" placeholder="Ej: 15:30" />
-                </div>
-                <div class="field-group">
-                  <label for="d4-tar-lugar">Lugar</label>
-                  <input type="text" id="d4-tar-lugar" placeholder="Ej: Salida Salón" />
-                </div>
-                <div class="field-group">
-                  <label for="d4-tar-conductor">Conductor</label>
-                  <input type="text" id="d4-tar-conductor" placeholder="Ej: Pedro" />
-                </div>
-                <div class="field-group">
-                  <label for="d4-tar-territorio">Territorio</label>
-                  <input type="text" id="d4-tar-territorio" placeholder="Ej: 9" />
-                </div>
-              </div>
-            </details>
-
-            <!-- VIERNES (5) -->
-            <details class="dia-detalle">
-              <summary>Viernes</summary>
-              <div class="turno">
-                <h4>Mañana</h4>
-                <div class="field-group">
-                  <label for="d5-man-hora">Hora</label>
-                  <input type="text" id="d5-man-hora" placeholder="Ej: 9:30" />
-                </div>
-                <div class="field-group">
-                  <label for="d5-man-lugar">Lugar</label>
-                  <input type="text" id="d5-man-lugar" placeholder="Ej: Salida Salón" />
-                </div>
-                <div class="field-group">
-                  <label for="d5-man-conductor">Conductor</label>
-                  <input type="text" id="d5-man-conductor" placeholder="Ej: Juan" />
-                </div>
-                <div class="field-group">
-                  <label for="d5-man-territorio">Territorio</label>
-                  <input type="text" id="d5-man-territorio" placeholder="Ej: 7" />
-                </div>
-              </div>
-
-              <div class="turno">
-                <h4>Tarde</h4>
-                <div class="field-group">
-                  <label for="d5-tar-hora">Hora</label>
-                  <input type="text" id="d5-tar-hora" placeholder="Ej: 15:30" />
-                </div>
-                <div class="field-group">
-                  <label for="d5-tar-lugar">Lugar</label>
-                  <input type="text" id="d5-tar-lugar" placeholder="Ej: Salida Salón" />
-                </div>
-                <div class="field-group">
-                  <label for="d5-tar-conductor">Conductor</label>
-                  <input type="text" id="d5-tar-conductor" placeholder="Ej: Pedro" />
-                </div>
-                <div class="field-group">
-                  <label for="d5-tar-territorio">Territorio</label>
-                  <input type="text" id="d5-tar-territorio" placeholder="Ej: 6" />
-                </div>
-              </div>
-            </details>
-
-            <!-- SÁBADO (6) -->
-            <details class="dia-detalle">
-              <summary>Sábado</summary>
-              <div class="turno">
-                <h4>Mañana</h4>
-                <div class="field-group">
-                  <label for="d6-man-hora">Hora</label>
-                  <input type="text" id="d6-man-hora" placeholder="Ej: 9:30" />
-                </div>
-                <div class="field-group">
-                  <label for="d6-man-lugar">Lugar</label>
-                  <input type="text" id="d6-man-lugar" placeholder="Ej: Salida Salón" />
-                </div>
-                <div class="field-group">
-                  <label for="d6-man-conductor">Conductor</label>
-                  <input type="text" id="d6-man-conductor" placeholder="Ej: Juan" />
-                </div>
-                <div class="field-group">
-                  <label for="d6-man-territorio">Territorio</label>
-                  <input type="text" id="d6-man-territorio" placeholder="Ej: 9" />
-                </div>
-              </div>
-
-              <div class="turno">
-                <h4>Tarde</h4>
-                <div class="field-group">
-                  <label for="d6-tar-hora">Hora</label>
-                  <input type="text" id="d6-tar-hora" placeholder="Ej: 15:30" />
-                </div>
-                <div class="field-group">
-                  <label for="d6-tar-lugar">Lugar</label>
-                  <input type="text" id="d6-tar-lugar" placeholder="Ej: Salida Salón" />
-                </div>
-                <div class="field-group">
-                  <label for="d6-tar-conductor">Conductor</label>
-                  <input type="text" id="d6-tar-conductor" placeholder="Ej: Pedro" />
-                </div>
-                <div class="field-group">
-                  <label for="d6-tar-territorio">Territorio</label>
-                  <input type="text" id="d6-tar-territorio" placeholder="Ej: 12" />
-                </div>
-              </div>
-            </details>
+          <div class="card-header">
+            <h2>Salidas de hoy</h2>
+            <span class="chip" id="chip-fecha-hoy"></span>
           </div>
-
-          <button id="btn-guardar-programa">💾 Guardar programa semanal</button>
-          <div id="estado-programa" style="margin-top:8px;font-size:13px;color:#555;"></div>
-        </div>
-      </section>
-
-      <!-- 🗺️ TERRITORIOS -->
-      <section id="territorios" class="section">
-        <h2>Territorios</h2>
-
-        <div class="card">
-          <div class="card-header">Mapa general</div>
-          <p>Más adelante podés cargar el mapa y hacer detección por color. Por ahora es solo informativo.</p>
-          <p style="font-size:13px;color:#555;">Función en construcción.</p>
-        </div>
-      </section>
-
-      <!-- 👥 INTERESADOS -->
-      <section id="interesados" class="section">
-        <h2>Interesados</h2>
-
-        <div class="card">
-          <div class="card-header">Nuevo interesado</div>
-
-          <div class="field-group">
-            <label for="int-fecha">Fecha</label>
-            <input type="date" id="int-fecha" />
+          <div id="bloque-salidas-hoy">
+            <p class="small-text">Cargando programa semanal...</p>
           </div>
-
-          <div class="field-group">
-            <label for="int-nombre">Nombre</label>
-            <input type="text" id="int-nombre" placeholder="Ej: Juan Pérez" />
-          </div>
-
-          <div class="field-group">
-            <label for="int-direccion">Dirección</label>
-            <input type="text" id="int-direccion" placeholder="Ej: Av. Siempre Viva 123" />
-          </div>
-
-          <div class="field-group">
-            <label for="int-nota">Observación</label>
-            <textarea id="int-nota" placeholder="Ej: Prefiere visitas por la tarde."></textarea>
-          </div>
-
-          <button id="btn-guardar-interesado">➕ Guardar interesado</button>
-          <div id="estado-interesado" style="margin-top:8px;font-size:13px;color:#555;"></div>
         </div>
 
         <div class="card">
-          <div class="card-header">Listado de interesados</div>
-          <div id="lista-interesados" style="margin-top:8px;font-size:13px;color:#555;">
-            Todavía no agregaste interesados.
+          <div class="card-header">
+            <h2>Atajos rápidos</h2>
           </div>
+          <div class="flex-row">
+            <button class="flex-1" onclick="cambiarSeccion('salidas')">📅 Editar salidas</button>
+            <button class="flex-1 btn-secondary" onclick="cambiarSeccion('informe')">⏱️ Registrar horas</button>
+          </div>
+          <p class="small-text" style="margin-top:0.5rem;">
+            Todo se guarda automáticamente en este dispositivo. Si borrás el historial o los datos del navegador, se pierden.
+          </p>
         </div>
       </section>
 
-      <!-- ⏱️ INFORME -->
-      <section id="informe" class="section">
-        <h2>Mi Informe</h2>
+      <!-- SALIDAS -->
+      <section id="sec-salidas" class="section">
+        <div class="card">
+          <div class="card-header">
+            <h2>Programa semanal de salidas</h2>
+            <span class="chip">Mañana / Tarde</span>
+          </div>
+          <p class="small-text">
+            Definí para cada día las salidas de mañana y tarde (por ej. “Territorios 1-2”, “Predicación pública”, etc.).
+          </p>
 
-        <div class="tabs-informe">
-          <button class="tab-btn active" data-tab="registro">Registro</button>
-          <button class="tab-btn" data-tab="metas">Metas</button>
+          <div class="salidas-grid salidas-grid-header" style="margin-top:0.4rem;">
+            <div>Día</div>
+            <div>Mañana</div>
+            <div>Tarde</div>
+          </div>
+          <div id="contenedor-salidas-semana"></div>
+
+          <button style="margin-top:0.6rem;" onclick="guardarSalidasSemana()">
+            Guardar programa semanal
+          </button>
+          <div id="status-salidas" class="status-ok" style="display:none;"></div>
+        </div>
+      </section>
+
+      <!-- TERRITORIOS -->
+      <section id="sec-territorios" class="section">
+        <div class="card">
+          <div class="card-header">
+            <h2>Territorios</h2>
+            <span class="chip" id="chip-total-territorios">0 registrados</span>
+          </div>
+          <p class="small-text">
+            Podés usar el color como referencia visual: por ejemplo, verde = trabajado recientemente, amarillo = por hacer, rojo = pendiente.
+          </p>
+
+          <h3>Nuevo territorio</h3>
+          <div class="flex-row">
+            <div class="flex-1">
+              <label for="territorio-nombre">Nombre / número</label>
+              <input id="territorio-nombre" type="text" placeholder="Territorio 12 - Centro" />
+            </div>
+            <div style="width:110px;">
+              <label for="territorio-color">Color</label>
+              <div class="fila-territorio">
+                <input id="territorio-color" type="color" value="#22c55e" />
+                <div class="territorio-color-preview" id="territorio-color-preview"></div>
+              </div>
+            </div>
+          </div>
+          <label for="territorio-notas">Notas</label>
+          <textarea id="territorio-notas" placeholder="Referencias, zonas especiales, etc."></textarea>
+
+          <button onclick="agregarTerritorio()">Agregar territorio</button>
+          <div id="status-territorio" class="status-ok" style="display:none;"></div>
         </div>
 
-        <!-- TAB REGISTRO -->
-        <div id="tab-registro" class="tab-section active">
-          <div class="card">
-            <div class="card-header">Registro diario</div>
+        <div class="card">
+          <div class="card-header">
+            <h3>Lista de territorios</h3>
+          </div>
+          <table>
+            <thead>
+              <tr>
+                <th>Territorio</th>
+                <th>Notas</th>
+                <th>Color</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody id="tabla-territorios"></tbody>
+          </table>
+          <p id="msg-sin-territorios" class="small-text" style="margin-top:0.5rem; display:none;">
+            Todavía no cargaste territorios.
+          </p>
+        </div>
+      </section>
 
-            <div class="field-group">
+      <!-- INTERESADOS -->
+      <section id="sec-interesados" class="section">
+        <div class="card">
+          <div class="card-header">
+            <h2>Interesados</h2>
+            <span class="chip" id="chip-total-interesados">0 contactos</span>
+          </div>
+
+          <h3>Nuevo interesado</h3>
+          <label for="int-nombre">Nombre</label>
+          <input id="int-nombre" type="text" placeholder="Nombre y apellido" />
+
+          <label for="int-direccion">Dirección / referencia</label>
+          <input id="int-direccion" type="text" placeholder="Calle, número, barrio..." />
+
+          <div class="flex-row">
+            <div class="flex-1">
+              <label for="int-telefono">Teléfono</label>
+              <input id="int-telefono" type="text" placeholder="Ej: 351-1234567" />
+            </div>
+            <div class="flex-1">
+              <label for="int-territorio">Territorio</label>
+              <input id="int-territorio" type="text" placeholder="Ej: T-12" />
+            </div>
+          </div>
+
+          <label for="int-notas">Notas</label>
+          <textarea id="int-notas" placeholder="Cuándo se visitó, publicaciones, comentarios, etc."></textarea>
+
+          <button onclick="agregarInteresado()">Agregar interesado</button>
+          <div id="status-interesado" class="status-ok" style="display:none;"></div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <h3>Listado y búsqueda</h3>
+          </div>
+          <label for="buscador-interesados">Buscar por nombre, dirección o territorio</label>
+          <input id="buscador-interesados" type="text" placeholder="Escribí para filtrar..." oninput="renderInteresados()" />
+
+          <div id="lista-interesados"></div>
+          <p id="msg-sin-interesados" class="small-text" style="margin-top:0.5rem; display:none;">
+            Todavía no cargaste interesados.
+          </p>
+        </div>
+      </section>
+
+      <!-- INFORME -->
+      <section id="sec-informe" class="section">
+        <div class="card">
+          <div class="card-header">
+            <h2>Mi informe</h2>
+            <span class="chip" id="chip-mes-informe"></span>
+          </div>
+          <h3>Meta mensual</h3>
+          <div class="flex-row">
+            <div class="flex-1">
+              <label for="meta-horas">Horas meta (mes actual)</label>
+              <input id="meta-horas" type="number" min="0" step="0.5" />
+            </div>
+          </div>
+          <button onclick="guardarMetaHoras()">Guardar meta</button>
+          <div id="status-meta" class="status-ok" style="display:none;"></div>
+        </div>
+
+        <div class="card">
+          <h3>Registro diario</h3>
+          <div class="flex-row">
+            <div class="flex-1">
               <label for="reg-fecha">Fecha</label>
-              <input type="date" id="reg-fecha" />
+              <input id="reg-fecha" type="date" />
             </div>
-
-            <div class="field-group">
+            <div style="width:110px;">
               <label for="reg-horas">Horas</label>
-              <input type="number" id="reg-horas" min="0" step="0.25" placeholder="Ej: 2.5" />
-            </div>
-
-            <div class="field-group">
-              <label for="reg-cursos">Cursos bíblicos</label>
-              <input type="number" id="reg-cursos" min="0" step="1" placeholder="Ej: 1" />
-            </div>
-
-            <button id="btn-agregar-registro">➕ Agregar registro</button>
-            <div id="estado-registro" style="margin-top:8px;font-size:13px;color:#555;"></div>
-          </div>
-
-          <div class="card">
-            <div class="card-header">Mes a ver / editar</div>
-            <div class="field-group">
-              <label for="resumen-mes">Seleccioná el mes</label>
-              <input type="month" id="resumen-mes" />
-              <p style="font-size:12px;color:#555;">El resumen mensual y la lista de registros usan este mes.</p>
+              <input id="reg-horas" type="number" min="0" step="0.25" />
             </div>
           </div>
+          <label for="reg-notas">Notas</label>
+          <textarea id="reg-notas" placeholder="Actividad, con quién saliste, detalles..."></textarea>
 
-          <div class="card">
-            <div class="card-header">Registros del mes seleccionado</div>
-            <div id="lista-registros-mes" style="font-size:13px;color:#555;">
-              No hay registros para este mes.
-            </div>
-            <div id="total-mes-registro" style="margin-top:8px;font-size:18px;color:#111;font-weight:700;">
-              <!-- Total del mes seleccionado -->
-            </div>
-          </div>
+          <button onclick="agregarRegistroDiario()">Agregar al registro</button>
+          <div id="status-registro" class="status-ok" style="display:none;"></div>
         </div>
 
-        <!-- TAB METAS -->
-        <div id="tab-metas" class="tab-section">
-          <div class="card">
-            <div class="card-header">Metas</div>
-
-            <div class="field-group">
-              <label for="meta-mensual">Meta de horas mensual</label>
-              <input type="number" id="meta-mensual" min="0" step="0.25" placeholder="Ej: 30" />
-            </div>
-
-            <div class="field-group">
-              <label for="meta-anual">Meta de horas anual (septiembre a agosto)</label>
-              <input type="number" id="meta-anual" min="0" step="0.25" placeholder="Ej: 360" />
-            </div>
-
-            <button id="btn-guardar-metas">💾 Guardar metas</button>
-            <div id="estado-metas" style="margin-top:8px;font-size:13px;color:#555;"></div>
-          </div>
-
-          <div class="card">
-            <div class="card-header">Resumen mensual (mes seleccionado)</div>
-            <div id="resumen-mensual-detalle" style="font-size:13px;color:#555;">
-              Todavía no hay registros.
-            </div>
-          </div>
-
-          <div class="card">
-            <div class="card-header">Resumen anual (año de servicio)</div>
-            <div id="resumen-anual-detalle" style="font-size:13px;color:#555;">
-              Todavía no hay registros.
-            </div>
-          </div>
+        <div class="card">
+          <h3>Resumen del mes</h3>
+          <div id="resumen-mes"></div>
+          <table>
+            <thead>
+              <tr>
+                <th>Fecha</th>
+                <th>Horas</th>
+                <th>Notas</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody id="tabla-registro-diario"></tbody>
+          </table>
+          <p id="msg-sin-registro" class="small-text" style="margin-top:0.5rem; display:none;">
+            Todavía no cargaste registros para este mes.
+          </p>
         </div>
       </section>
     </main>
   </div>
 
+  <!-- NAV inferior -->
+  <div class="bottom-nav">
+    <button id="nav-inicio" class="active" onclick="cambiarSeccion('inicio')">
+      <span class="icon">🏠</span>
+      Inicio
+    </button>
+    <button id="nav-salidas" onclick="cambiarSeccion('salidas')">
+      <span class="icon">📅</span>
+      Salidas
+    </button>
+    <button id="nav-territorios" onclick="cambiarSeccion('territorios')">
+      <span class="icon">🗺️</span>
+      Territorios
+    </button>
+    <button id="nav-interesados" onclick="cambiarSeccion('interesados')">
+      <span class="icon">👥</span>
+      Interesados
+    </button>
+    <button id="nav-informe" onclick="cambiarSeccion('informe')">
+      <span class="icon">⏱️</span>
+      Informe
+    </button>
+  </div>
+
   <script>
-    console.log("Territorios App v6.0 READY");
+    // ==== Constantes / helpers generales ====
 
-    const sections = document.querySelectorAll(".section");
-    const navButtons = document.querySelectorAll(".nav-btn");
-    const tabButtons = document.querySelectorAll(".tab-btn");
-    const tabSections = document.querySelectorAll(".tab-section");
+    const LS_SALIDAS = "territorios_salidasSemana";
+    const LS_TERRITORIOS = "territorios_lista";
+    const LS_INTERESADOS = "territorios_interesados";
+    const LS_META_HORAS = "territorios_metaHoras";
+    const LS_REGISTRO = "territorios_registroDiario";
 
-    // --- Navegación entre secciones principales ---
-    function mostrarSeccion(id) {
-      sections.forEach(sec => sec.classList.toggle("active", sec.id === id));
-      navButtons.forEach(btn => btn.classList.toggle("active", btn.dataset.section === id));
-    }
+    const DIAS = [
+      "Lunes","Martes","Miércoles","Jueves","Viernes","Sábado","Domingo"
+    ];
 
-    navButtons.forEach(btn => {
-      btn.addEventListener("click", () => {
-        mostrarSeccion(btn.dataset.section);
-      });
-    });
-
-    // Header vuelve a INICIO
-    const headerEl = document.querySelector("header");
-    if (headerEl) {
-      headerEl.addEventListener("click", () => {
-        mostrarSeccion("inicio");
-      });
-    }
-
-    // --- Tabs Mi Informe (Registro / Metas) ---
-    function mostrarTab(id) {
-      tabSections.forEach(tab => tab.classList.toggle("active", tab.id === id));
-      tabButtons.forEach(btn => btn.classList.toggle("active", btn.dataset.tab === id.replace("tab-", "")));
-    }
-
-    tabButtons.forEach(btn => {
-      btn.addEventListener("click", () => {
-        const tabId = "tab-" + btn.dataset.tab;
-        mostrarTab(tabId);
-      });
-    });
-
-    // --- Helpers generales ---
     function hoyISO() {
-      const hoy = new Date();
-      const y = hoy.getFullYear();
-      const m = String(hoy.getMonth() + 1).padStart(2, "0");
-      const d = String(hoy.getDate()).padStart(2, "0");
-      return `${y}-${m}-${d}`;
+      const d = new Date();
+      return d.toISOString().slice(0,10);
     }
 
-    function formatearFechaLocal(fechaISO) {
-      if (!fechaISO) return "";
-      const fechaObj = new Date(fechaISO + "T00:00:00");
-      if (isNaN(fechaObj.getTime())) return fechaISO;
-      const dd = String(fechaObj.getDate()).padStart(2, "0");
-      const mm = String(fechaObj.getMonth() + 1).padStart(2, "0");
-      const yy = fechaObj.getFullYear();
-      return `${dd}/${mm}/${yy}`;
+    function mesActualClave() {
+      return hoyISO().slice(0,7); // YYYY-MM
     }
 
-    // --- SALIDAS: programa semanal ---
-    function obtenerProgramaGuardado() {
-      const guardado = localStorage.getItem("territorios_programaSemanal");
-      if (!guardado) return {};
-      try {
-        return JSON.parse(guardado) || {};
-      } catch (e) {
-        return {};
-      }
+    function mostrarStatus(id, msg, ok=true) {
+      const el = document.getElementById(id);
+      if (!el) return;
+      el.textContent = msg;
+      el.style.display = "block";
+      el.className = ok ? "status-ok" : "status-error";
+      setTimeout(() => {
+        el.style.display = "none";
+      }, 1500);
     }
 
-    function normalizarDia(programaDia) {
-      if (!programaDia || typeof programaDia !== "object") {
-        const territorio = programaDia != null ? String(programaDia) : "";
-        return {
-          manana: { hora: "", lugar: "", conductor: "", territorio },
-          tarde:  { hora: "", lugar: "", conductor: "", territorio: "" }
-        };
-      }
-      return {
-        manana: {
-          hora:       programaDia.manana && programaDia.manana.hora       ? programaDia.manana.hora       : "",
-          lugar:      programaDia.manana && programaDia.manana.lugar      ? programaDia.manana.lugar      : "",
-          conductor:  programaDia.manana && programaDia.manana.conductor  ? programaDia.manana.conductor  : "",
-          territorio: programaDia.manana && programaDia.manana.territorio ? programaDia.manana.territorio : ""
-        },
-        tarde: {
-          hora:       programaDia.tarde && programaDia.tarde.hora       ? programaDia.tarde.hora       : "",
-          lugar:      programaDia.tarde && programaDia.tarde.lugar      ? programaDia.tarde.lugar      : "",
-          conductor:  programaDia.tarde && programaDia.tarde.conductor  ? programaDia.tarde.conductor  : "",
-          territorio: programaDia.tarde && programaDia.tarde.territorio ? programaDia.tarde.territorio : ""
+    function cambiarSeccion(id) {
+      const sections = ["inicio","salidas","territorios","interesados","informe"];
+      sections.forEach(sec => {
+        const secEl = document.getElementById("sec-"+sec);
+        const navEl = document.getElementById("nav-"+sec);
+        if (sec === id) {
+          secEl.classList.add("active");
+          navEl.classList.add("active");
+        } else {
+          secEl.classList.remove("active");
+          navEl.classList.remove("active");
         }
-      };
-    }
+      });
 
-    function rellenarProgramaEnInputs() {
-      const programa = obtenerProgramaGuardado();
-      for (let i = 0; i < 7; i++) {
-        const diaNorm = normalizarDia(programa[i]);
-        const ids = [
-          `d${i}-man-hora`,
-          `d${i}-man-lugar`,
-          `d${i}-man-conductor`,
-          `d${i}-man-territorio`,
-          `d${i}-tar-hora`,
-          `d${i}-tar-lugar`,
-          `d${i}-tar-conductor`,
-          `d${i}-tar-territorio`
-        ];
-        const valores = [
-          diaNorm.manana.hora,
-          diaNorm.manana.lugar,
-          diaNorm.manana.conductor,
-          diaNorm.manana.territorio,
-          diaNorm.tarde.hora,
-          diaNorm.tarde.lugar,
-          diaNorm.tarde.conductor,
-          diaNorm.tarde.territorio
-        ];
-        ids.forEach((id, idx) => {
-          const el = document.getElementById(id);
-          if (el) el.value = valores[idx] || "";
-        });
+      if (id === "informe") {
+        actualizarResumenInforme();
       }
     }
 
-    function actualizarSalidaHoy(programaOpcional) {
-      const salidaElem = document.getElementById("salida-hoy-texto");
-      if (!salidaElem) return;
+    // ==== Salidas de semana ====
 
-      let programa = programaOpcional;
-      if (!programa) programa = obtenerProgramaGuardado();
-
-      const hoy = new Date();
-      const idx = hoy.getDay(); // 0=Domingo ... 6=Sábado
-      const diaNorm = normalizarDia(programa[idx]);
-
-      const partes = [];
-
-      function construirLineaTurno(titulo, datos) {
-        const trozos = [];
-        if (datos.hora) trozos.push(datos.hora);
-        if (datos.lugar) trozos.push(datos.lugar);
-        if (datos.conductor) trozos.push("Conductor: " + datos.conductor);
-        if (datos.territorio) trozos.push("Territorio: " + datos.territorio);
-        if (!trozos.length) return "";
-        return "<strong>" + titulo + ":</strong> " + trozos.join(" · ");
+    function cargarSalidasSemana() {
+      const dataStr = localStorage.getItem(LS_SALIDAS);
+      let salidas = [];
+      if (dataStr) {
+        try {
+          salidas = JSON.parse(dataStr);
+        } catch(e) {}
       }
-
-      const lineaManana = construirLineaTurno("Mañana", diaNorm.manana);
-      const lineaTarde  = construirLineaTurno("Tarde",  diaNorm.tarde);
-
-      if (lineaManana) partes.push(lineaManana);
-      if (lineaTarde)  partes.push(lineaTarde);
-
-      if (!partes.length) {
-        salidaElem.textContent = "Todavía no cargaste salida para hoy.";
-      } else {
-        salidaElem.innerHTML = partes.join("<br>");
+      if (!Array.isArray(salidas) || salidas.length !== 7) {
+        salidas = DIAS.map(d => ({ dia: d, manana: "", tarde: "" }));
       }
+      return salidas;
     }
 
-    const btnGuardarPrograma = document.getElementById("btn-guardar-programa");
-    const estadoPrograma = document.getElementById("estado-programa");
+    function renderSalidasSemana() {
+      const cont = document.getElementById("contenedor-salidas-semana");
+      cont.innerHTML = "";
+      const salidas = cargarSalidasSemana();
 
-    if (btnGuardarPrograma) {
-      btnGuardarPrograma.addEventListener("click", () => {
-        const programa = {};
-        for (let i = 0; i < 7; i++) {
-          programa[i] = {
-            manana: {
-              hora:       (document.getElementById(`d${i}-man-hora`)?.value || "").trim(),
-              lugar:      (document.getElementById(`d${i}-man-lugar`)?.value || "").trim(),
-              conductor:  (document.getElementById(`d${i}-man-conductor`)?.value || "").trim(),
-              territorio: (document.getElementById(`d${i}-man-territorio`)?.value || "").trim()
-            },
-            tarde: {
-              hora:       (document.getElementById(`d${i}-tar-hora`)?.value || "").trim(),
-              lugar:      (document.getElementById(`d${i}-tar-lugar`)?.value || "").trim(),
-              conductor:  (document.getElementById(`d${i}-tar-conductor`)?.value || "").trim(),
-              territorio: (document.getElementById(`d${i}-tar-territorio`)?.value || "").trim()
-            }
-          };
-        }
-        localStorage.setItem("territorios_programaSemanal", JSON.stringify(programa));
-        if (estadoPrograma) estadoPrograma.textContent = "Programa semanal guardado.";
-        actualizarSalidaHoy(programa);
+      salidas.forEach((fila, idx) => {
+        const row = document.createElement("div");
+        row.className = "salidas-grid";
+        row.innerHTML = `
+          <div class="small-text">${fila.dia}</div>
+          <div><input type="text" id="salida-manana-${idx}" value="${fila.manana || ""}" placeholder="Ej: Territorio 1" /></div>
+          <div><input type="text" id="salida-tarde-${idx}" value="${fila.tarde || ""}" placeholder="Ej: Territorio 2" /></div>
+        `;
+        cont.appendChild(row);
       });
     }
 
-    // --- INTERESADOS ---
-    let listaInteresadosData = [];
-    const contenedorInteresados = document.getElementById("lista-interesados");
-    const estadoInteresado = document.getElementById("estado-interesado");
-    const intFechaInput = document.getElementById("int-fecha");
+    function guardarSalidasSemana() {
+      const salidas = DIAS.map((dia, idx) => ({
+        dia,
+        manana: document.getElementById("salida-manana-"+idx).value.trim(),
+        tarde: document.getElementById("salida-tarde-"+idx).value.trim()
+      }));
+      localStorage.setItem(LS_SALIDAS, JSON.stringify(salidas));
+      mostrarStatus("status-salidas","Programa guardado ✅",true);
+      renderSalidasHoy();
+    }
 
-    function cargarInteresadosDesdeStorage() {
-      const guardado = localStorage.getItem("interesados_lista");
-      if (!guardado) {
-        listaInteresadosData = [];
+    function renderSalidasHoy() {
+      const chip = document.getElementById("chip-fecha-hoy");
+      const cont = document.getElementById("bloque-salidas-hoy");
+      const hoy = new Date();
+      const diaIndex = (hoy.getDay() + 6) % 7; // 0 lunes ... 6 domingo
+      const fechaStr = hoy.toLocaleDateString("es-AR", {
+        weekday: "long",
+        day: "numeric",
+        month: "long"
+      });
+
+      chip.textContent = fechaStr.charAt(0).toUpperCase() + fechaStr.slice(1);
+
+      const salidas = cargarSalidasSemana();
+      const hoyFila = salidas[diaIndex];
+
+      if (!hoyFila || (!hoyFila.manana && !hoyFila.tarde)) {
+        cont.innerHTML = `<p class="small-text">Para hoy no hay salidas configuradas en el programa semanal.</p>`;
         return;
       }
-      try {
-        listaInteresadosData = JSON.parse(guardado) || [];
-      } catch (e) {
-        listaInteresadosData = [];
+
+      let html = "";
+      if (hoyFila.manana) {
+        html += `<p><strong>Mañana:</strong> ${hoyFila.manana}</p>`;
       }
+      if (hoyFila.tarde) {
+        html += `<p><strong>Tarde:</strong> ${hoyFila.tarde}</p>`;
+      }
+
+      cont.innerHTML = html;
     }
 
-    function guardarInteresadosEnStorage() {
-      localStorage.setItem("interesados_lista", JSON.stringify(listaInteresadosData));
+    // ==== Territorios ====
+
+    function cargarTerritorios() {
+      const dataStr = localStorage.getItem(LS_TERRITORIOS);
+      let lista = [];
+      if (dataStr) {
+        try { lista = JSON.parse(dataStr); } catch(e){}
+      }
+      if (!Array.isArray(lista)) lista = [];
+      return lista;
+    }
+
+    function guardarTerritorios(lista) {
+      localStorage.setItem(LS_TERRITORIOS, JSON.stringify(lista));
+    }
+
+    function renderTerritorios() {
+      const lista = cargarTerritorios();
+      const tbody = document.getElementById("tabla-territorios");
+      const chip = document.getElementById("chip-total-territorios");
+      const msgSin = document.getElementById("msg-sin-territorios");
+
+      tbody.innerHTML = "";
+      chip.textContent = `${lista.length} registrados`;
+
+      if (!lista.length) {
+        msgSin.style.display = "block";
+        return;
+      }
+      msgSin.style.display = "none";
+
+      lista.forEach((t, idx) => {
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+          <td>${t.nombre || ""}</td>
+          <td>${t.notas || ""}</td>
+          <td>
+            <div style="display:flex; align-items:center; gap:0.3rem;">
+              <div style="width:16px; height:16px; border-radius:4px; border:1px solid #d1d5db; background:${t.color || "#ffffff"};"></div>
+              <span class="small-text">${t.color || ""}</span>
+            </div>
+          </td>
+          <td>
+            <button class="btn-danger btn-small" onclick="eliminarTerritorio(${idx})">✕</button>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    function agregarTerritorio() {
+      const nombre = document.getElementById("territorio-nombre").value.trim();
+      const color = document.getElementById("territorio-color").value;
+      const notas = document.getElementById("territorio-notas").value.trim();
+
+      if (!nombre) {
+        mostrarStatus("status-territorio","Poné un nombre o número de territorio",false);
+        return;
+      }
+
+      const lista = cargarTerritorios();
+      lista.push({
+        id: Date.now(),
+        nombre,
+        color,
+        notas
+      });
+      guardarTerritorios(lista);
+      renderTerritorios();
+
+      document.getElementById("territorio-nombre").value = "";
+      document.getElementById("territorio-notas").value = "";
+      mostrarStatus("status-territorio","Territorio agregado ✅",true);
+    }
+
+    function eliminarTerritorio(idx) {
+      const lista = cargarTerritorios();
+      if (idx < 0 || idx >= lista.length) return;
+      if (!confirm("¿Eliminar este territorio?")) return;
+      lista.splice(idx,1);
+      guardarTerritorios(lista);
+      renderTerritorios();
+    }
+
+    // ==== Interesados ====
+
+    function cargarInteresados() {
+      const dataStr = localStorage.getItem(LS_INTERESADOS);
+      let lista = [];
+      if (dataStr) {
+        try { lista = JSON.parse(dataStr); } catch(e){}
+      }
+      if (!Array.isArray(lista)) lista = [];
+      return lista;
+    }
+
+    function guardarInteresados(lista) {
+      localStorage.setItem(LS_INTERESADOS, JSON.stringify(lista));
+    }
+
+    function agregarInteresado() {
+      const nombre = document.getElementById("int-nombre").value.trim();
+      const dir = document.getElementById("int-direccion").value.trim();
+      const tel = document.getElementById("int-telefono").value.trim();
+      const terr = document.getElementById("int-territorio").value.trim();
+      const notas = document.getElementById("int-notas").value.trim();
+
+      if (!nombre) {
+        mostrarStatus("status-interesado","Poné al menos el nombre",false);
+        return;
+      }
+
+      const lista = cargarInteresados();
+      lista.push({
+        id: Date.now(),
+        nombre,
+        direccion: dir,
+        telefono: tel,
+        territorio: terr,
+        notas
+      });
+      guardarInteresados(lista);
+
+      document.getElementById("int-nombre").value = "";
+      document.getElementById("int-direccion").value = "";
+      document.getElementById("int-telefono").value = "";
+      document.getElementById("int-territorio").value = "";
+      document.getElementById("int-notas").value = "";
+
+      renderInteresados();
+      mostrarStatus("status-interesado","Interesado agregado ✅",true);
+    }
+
+    function eliminarInteresado(id) {
+      const lista = cargarInteresados();
+      const idx = lista.findIndex(i => i.id === id);
+      if (idx === -1) return;
+      if (!confirm("¿Eliminar este interesado?")) return;
+      lista.splice(idx,1);
+      guardarInteresados(lista);
+      renderInteresados();
     }
 
     function renderInteresados() {
-      if (!contenedorInteresados) return;
-      if (!listaInteresadosData.length) {
-        contenedorInteresados.textContent = "Todavía no agregaste interesados.";
-        return;
-      }
+      const lista = cargarInteresados();
+      const cont = document.getElementById("lista-interesados");
+      const chip = document.getElementById("chip-total-interesados");
+      const msgSin = document.getElementById("msg-sin-interesados");
+      const filtro = document.getElementById("buscador-interesados").value.trim().toLowerCase();
 
-      contenedorInteresados.innerHTML = "";
+      chip.textContent = `${lista.length} contactos`;
+      cont.innerHTML = "";
 
-      const ordenados = [...listaInteresadosData].sort((a, b) => {
-        const fa = a.fecha || "";
-        const fb = b.fecha || "";
-        return fb.localeCompare(fa);
+      const filtrados = lista.filter(i => {
+        if (!filtro) return true;
+        const txt = (i.nombre + " " + i.direccion + " " + i.territorio).toLowerCase();
+        return txt.includes(filtro);
       });
 
-      ordenados.forEach(item => {
-        const card = document.createElement("div");
-        card.style.border = "1px solid #e0e3ef";
-        card.style.borderRadius = "12px";
-        card.style.padding = "10px";
-        card.style.marginBottom = "8px";
-        card.style.background = "#fdf9ff";
-        card.style.fontSize = "14px";
-
-        const bloqueTexto = document.createElement("div");
-
-        const fechaDiv = document.createElement("div");
-        fechaDiv.style.fontSize = "13px";
-        fechaDiv.style.color = "#333";
-        if (item.fecha) {
-          fechaDiv.textContent = "Fecha: " + formatearFechaLocal(item.fecha);
-        }
-
-        const nombre = document.createElement("div");
-        nombre.style.fontWeight = "600";
-        nombre.style.fontSize = "15px";
-        nombre.textContent = item.nombre || "(Sin nombre)";
-
-        const dir = document.createElement("div");
-        dir.style.fontSize = "14px";
-        dir.textContent = item.direccion || "";
-
-        const nota = document.createElement("div");
-        nota.style.fontSize = "13px";
-        nota.style.color = "#555";
-        nota.textContent = item.nota || "";
-
-        bloqueTexto.appendChild(fechaDiv);
-        bloqueTexto.appendChild(nombre);
-        if (item.direccion) bloqueTexto.appendChild(dir);
-        if (item.nota) bloqueTexto.appendChild(nota);
-
-        const btnEliminar = document.createElement("button");
-        btnEliminar.textContent = "Eliminar";
-        btnEliminar.style.fontSize = "11px";
-        btnEliminar.style.padding = "4px 8px";
-        btnEliminar.style.marginTop = "6px";
-        btnEliminar.addEventListener("click", () => {
-          const index = listaInteresadosData.indexOf(item);
-          if (index !== -1) {
-            listaInteresadosData.splice(index, 1);
-            guardarInteresadosEnStorage();
-            renderInteresados();
-          }
-        });
-
-        card.appendChild(bloqueTexto);
-        card.appendChild(btnEliminar);
-        contenedorInteresados.appendChild(card);
-      });
-    }
-
-    const btnGuardarInteresado = document.getElementById("btn-guardar-interesado");
-
-    if (btnGuardarInteresado) {
-      btnGuardarInteresado.addEventListener("click", () => {
-        const nombreEl = document.getElementById("int-nombre");
-        const dirEl    = document.getElementById("int-direccion");
-        const notaEl   = document.getElementById("int-nota");
-
-        const nombre    = nombreEl ? nombreEl.value.trim() : "";
-        const direccion = dirEl    ? dirEl.value.trim()    : "";
-        const nota      = notaEl   ? notaEl.value.trim()   : "";
-        let fecha       = intFechaInput ? intFechaInput.value : "";
-
-        if (!nombre && !direccion && !nota) {
-          if (estadoInteresado) estadoInteresado.textContent = "Cargá al menos un dato para guardar.";
-          return;
-        }
-
-        if (!fecha) fecha = hoyISO();
-
-        listaInteresadosData.push({ nombre, direccion, nota, fecha });
-        guardarInteresadosEnStorage();
-        renderInteresados();
-
-        if (estadoInteresado) estadoInteresado.textContent = "Interesado guardado.";
-        if (nombreEl) nombreEl.value = "";
-        if (dirEl)    dirEl.value    = "";
-        if (notaEl)   notaEl.value   = "";
-        if (intFechaInput && !intFechaInput.value) {
-          intFechaInput.value = fecha;
-        }
-      });
-    }
-
-    // --- INFORME ---
-    let metas = { metaMensual: 0, metaAnual: 0 };
-    let registrosHoras = [];
-
-    const metaMensualInput = document.getElementById("meta-mensual");
-    const metaAnualInput   = document.getElementById("meta-anual");
-    const estadoMetas      = document.getElementById("estado-metas");
-
-    const regFechaInput   = document.getElementById("reg-fecha");
-    const regHorasInput   = document.getElementById("reg-horas");
-    const regCursosInput  = document.getElementById("reg-cursos");
-    const estadoRegistro  = document.getElementById("estado-registro");
-
-    const resumenMensualDetalle = document.getElementById("resumen-mensual-detalle");
-    const resumenAnualDetalle   = document.getElementById("resumen-anual-detalle");
-
-    const resumenMesInput   = document.getElementById("resumen-mes");
-    const listaRegistrosMes = document.getElementById("lista-registros-mes");
-    const totalMesRegistro  = document.getElementById("total-mes-registro");
-
-    function obtenerMesSeleccionado() {
-      const ahora = new Date();
-      let mes  = ahora.getMonth();
-      let anio = ahora.getFullYear();
-
-      if (resumenMesInput && resumenMesInput.value) {
-        const partes = resumenMesInput.value.split("-");
-        if (partes.length === 2) {
-          const y = parseInt(partes[0], 10);
-          const m = parseInt(partes[1], 10);
-          if (!isNaN(y) && !isNaN(m)) {
-            anio = y;
-            mes  = m - 1;
-          }
-        }
-      }
-      return { mes, anio };
-    }
-
-    function cargarMetasYRegistrosDesdeStorage() {
-      const metasGuardadas = localStorage.getItem("informe_metas");
-      if (metasGuardadas) {
-        try {
-          const obj = JSON.parse(metasGuardadas);
-          metas.metaMensual = parseFloat(obj.metaMensual) || 0;
-          metas.metaAnual   = parseFloat(obj.metaAnual)   || 0;
-        } catch (e) {}
-      }
-
-      const regsGuardados = localStorage.getItem("informe_registrosHoras");
-      if (regsGuardados) {
-        try {
-          registrosHoras = JSON.parse(regsGuardados) || [];
-        } catch (e) {
-          registrosHoras = [];
-        }
-      }
-
-      if (metaMensualInput) metaMensualInput.value = metas.metaMensual || "";
-      if (metaAnualInput)   metaAnualInput.value   = metas.metaAnual   || "";
-      if (regFechaInput && !regFechaInput.value)   regFechaInput.value = hoyISO();
-
-      if (resumenMesInput && !resumenMesInput.value) {
-        resumenMesInput.value = hoyISO().slice(0, 7);
-      }
-
-      if (intFechaInput && !intFechaInput.value) {
-        intFechaInput.value = hoyISO();
-      }
-    }
-
-    function guardarMetasEnStorage() {
-      localStorage.setItem("informe_metas", JSON.stringify(metas));
-    }
-
-    function guardarRegistrosEnStorage() {
-      localStorage.setItem("informe_registrosHoras", JSON.stringify(registrosHoras));
-    }
-
-    function renderRegistrosMes() {
-      if (!listaRegistrosMes) return;
-      const { mes, anio } = obtenerMesSeleccionado();
-
-      const registrosMes = registrosHoras
-        .map((reg, index) => ({ ...reg, index }))
-        .filter((reg) => {
-          if (!reg.fecha) return false;
-          const fecha = new Date(reg.fecha + "T00:00:00");
-          return fecha.getMonth() === mes && fecha.getFullYear() === anio;
-        });
-
-      if (!registrosMes.length) {
-        listaRegistrosMes.textContent = "No hay registros para este mes.";
-        if (totalMesRegistro) {
-          totalMesRegistro.innerHTML = "Total horas del mes seleccionado: <strong>0.00 h</strong>";
-        }
-        return;
-      }
-
-      listaRegistrosMes.innerHTML = "";
-      let acumuladoMes = 0;
-
-      registrosMes.forEach((reg) => {
-        acumuladoMes += Number(reg.horas || 0);
-
-        const fila = document.createElement("div");
-        fila.style.border = "1px solid #e0e3ef";
-        fila.style.borderRadius = "8px";
-        fila.style.padding = "6px 8px";
-        fila.style.marginBottom = "6px";
-        fila.style.background = "#f9f9fd";
-        fila.style.display = "flex";
-        fila.style.justifyContent = "space-between";
-        fila.style.alignItems = "center";
-        fila.style.gap = "8px";
-
-        const fechaObj = new Date(reg.fecha + "T00:00:00");
-        let textoFecha;
-        if (isNaN(fechaObj.getTime())) {
-          textoFecha = reg.fecha;
-        } else {
-          const dd = String(fechaObj.getDate()).padStart(2, "0");
-          const mm = String(fechaObj.getMonth() + 1).padStart(2, "0");
-          const yy = fechaObj.getFullYear();
-          textoFecha = `${dd}/${mm}/${yy}`;
-        }
-
-        const datos = document.createElement("div");
-        datos.style.fontSize = "13px";
-        const cursos = typeof reg.cursos === "number" ? reg.cursos : (parseInt(reg.cursos, 10) || 0);
-
-        datos.innerHTML =
-          `<strong>${textoFecha}</strong> · ` +
-          `Horas: ${Number(reg.horas || 0).toFixed(2)}` +
-          ` · Cursos: ${cursos}`;
-
-        const btnEliminar = document.createElement("button");
-        btnEliminar.textContent = "Eliminar";
-        btnEliminar.style.fontSize = "11px";
-        btnEliminar.style.padding = "4px 8px";
-        btnEliminar.addEventListener("click", () => {
-          registrosHoras.splice(reg.index, 1);
-          guardarRegistrosEnStorage();
-          actualizarResumenes();
-        });
-
-        fila.appendChild(datos);
-        fila.appendChild(btnEliminar);
-        listaRegistrosMes.appendChild(fila);
-      });
-
-      if (totalMesRegistro) {
-        totalMesRegistro.innerHTML =
-          "Total horas del mes seleccionado: <strong>" + acumuladoMes.toFixed(2) + " h</strong>";
-      }
-    }
-
-    function actualizarResumenes() {
-      const { mes: mesResumen, anio: anioResumen } = obtenerMesSeleccionado();
-
-      let totalMensual = 0;
-      registrosHoras.forEach((reg) => {
-        if (!reg.fecha) return;
-        const fecha = new Date(reg.fecha + "T00:00:00");
-        if (fecha.getMonth() === mesResumen && fecha.getFullYear() === anioResumen) {
-          totalMensual += Number(reg.horas) || 0;
-        }
-      });
-
-      let anioServicioInicio;
-      if (mesResumen >= 8) {
-        anioServicioInicio = anioResumen;
+      if (!lista.length) {
+        msgSin.style.display = "block";
       } else {
-        anioServicioInicio = anioResumen - 1;
-      }
-      const inicioServicio = new Date(anioServicioInicio, 8, 1);
-      const finServicio    = new Date(anioServicioInicio + 1, 8, 1);
-
-      let totalAnual = 0;
-      registrosHoras.forEach((reg) => {
-        if (!reg.fecha) return;
-        const fecha = new Date(reg.fecha + "T00:00:00");
-        if (fecha >= inicioServicio && fecha < finServicio) {
-          totalAnual += Number(reg.horas) || 0;
-        }
-      });
-
-      const metaMensual = metas.metaMensual || 0;
-      const metaAnual   = metas.metaAnual   || 0;
-
-      const faltanteMensual = Math.max(0, metaMensual - totalMensual);
-      const faltanteAnual   = Math.max(0, metaAnual   - totalAnual);
-
-      if (resumenMensualDetalle) {
-        if (!metaMensual && !totalMensual && !totalAnual) {
-          resumenMensualDetalle.textContent = "No cargaste metas ni registros para este mes.";
-        } else {
-          resumenMensualDetalle.innerHTML =
-            "Meta mensual: <strong>" + metaMensual.toFixed(2) + " h</strong><br>" +
-            "Horas registradas en el mes: <strong>" + totalMensual.toFixed(2) + " h</strong><br>" +
-            "Faltan para la meta mensual: <strong>" + faltanteMensual.toFixed(2) + " h</strong><br><br>" +
-            "Total acumulado en el año de servicio: <strong>" + totalAnual.toFixed(2) + " h</strong>";
-        }
+        msgSin.style.display = "none";
       }
 
-      if (resumenAnualDetalle) {
-        const anioFinServicio = anioServicioInicio + 1;
-        const textoRango =
-          "Año de servicio: septiembre " +
-          anioServicioInicio +
-          " a agosto " +
-          anioFinServicio;
-
-        if (!metaAnual && !totalAnual) {
-          resumenAnualDetalle.textContent =
-            textoRango + ". Todavía no cargaste metas ni registros.";
-        } else {
-          resumenAnualDetalle.innerHTML =
-            textoRango + "<br>" +
-            "Meta anual: <strong>" + metaAnual.toFixed(2) + " h</strong><br>" +
-            "Horas registradas en el año de servicio: <strong>" + totalAnual.toFixed(2) + " h</strong><br>" +
-            "Faltan para la meta anual: <strong>" + faltanteAnual.toFixed(2) + " h</strong>";
-        }
+      if (!filtrados.length && lista.length) {
+        cont.innerHTML = `<p class="small-text">No hay resultados para ese filtro.</p>`;
+        return;
       }
 
-      renderRegistrosMes();
-    }
-
-    const btnGuardarMetas = document.getElementById("btn-guardar-metas");
-    if (btnGuardarMetas) {
-      btnGuardarMetas.addEventListener("click", () => {
-        const mensual = metaMensualInput ? parseFloat(metaMensualInput.value) : 0;
-        const anual   = metaAnualInput   ? parseFloat(metaAnualInput.value)   : 0;
-        metas.metaMensual = isNaN(mensual) ? 0 : mensual;
-        metas.metaAnual   = isNaN(anual)   ? 0 : anual;
-        guardarMetasEnStorage();
-        if (estadoMetas) estadoMetas.textContent = "Metas guardadas.";
-        actualizarResumenes();
+      filtrados.forEach(i => {
+        const div = document.createElement("div");
+        div.className = "interesado-card";
+        div.innerHTML = `
+          <div class="interesado-nombre">${i.nombre}</div>
+          <div class="interesado-detalle">
+            ${i.direccion ? "<strong>Dirección:</strong> "+i.direccion+"<br/>" : ""}
+            ${i.telefono ? "<strong>Tel:</strong> "+i.telefono+"<br/>" : ""}
+            ${i.territorio ? "<strong>Territorio:</strong> "+i.territorio+"<br/>" : ""}
+            ${i.notas ? "<strong>Notas:</strong> "+i.notas : ""}
+          </div>
+          <div style="margin-top:0.25rem;">
+            <button class="btn-danger btn-small" onclick="eliminarInteresado(${i.id})">Eliminar</button>
+          </div>
+        `;
+        cont.appendChild(div);
       });
     }
 
-    const btnAgregarRegistro = document.getElementById("btn-agregar-registro");
-    if (btnAgregarRegistro) {
-      btnAgregarRegistro.addEventListener("click", () => {
-        const fecha  = regFechaInput  ? regFechaInput.value : "";
-        const horas  = regHorasInput  ? parseFloat(regHorasInput.value)  : 0;
-        const cursos = regCursosInput ? parseInt(regCursosInput.value, 10) : 0;
+    // ==== Informe personal ====
 
-        if (!fecha || isNaN(horas) || horas <= 0) {
-          if (estadoRegistro) estadoRegistro.textContent = "Cargá una fecha y horas válidas.";
-          return;
-        }
-
-        registrosHoras.push({
-          fecha,
-          horas,
-          cursos: isNaN(cursos) ? 0 : cursos
-        });
-        guardarRegistrosEnStorage();
-        if (estadoRegistro) estadoRegistro.textContent = "Registro agregado.";
-        if (regHorasInput)  regHorasInput.value  = "";
-        if (regCursosInput) regCursosInput.value = "";
-        actualizarResumenes();
-      });
+    function cargarMetaHoras() {
+      const dataStr = localStorage.getItem(LS_META_HORAS);
+      if (!dataStr) return {};
+      try { return JSON.parse(dataStr); } catch(e){}
+      return {};
     }
 
-    if (resumenMesInput) {
-      resumenMesInput.addEventListener("change", () => {
-        actualizarResumenes();
-      });
+    function guardarMetaHoras() {
+      const metaHorasStr = document.getElementById("meta-horas").value.trim();
+      const meta = metaHorasStr ? parseFloat(metaHorasStr) : 0;
+      const metas = cargarMetaHoras();
+      metas[mesActualClave()] = isNaN(meta) ? 0 : meta;
+      localStorage.setItem(LS_META_HORAS, JSON.stringify(metas));
+      mostrarStatus("status-meta","Meta guardada ✅",true);
+      actualizarResumenInforme();
     }
 
-    // --- Inicialización ---
-    rellenarProgramaEnInputs();
-    actualizarSalidaHoy();
-
-    cargarInteresadosDesdeStorage();
-    renderInteresados();
-
-    cargarMetasYRegistrosDesdeStorage();
-    actualizarResumenes();
-
-    // --- Registrar Service Worker para PWA ---
-    if ("serviceWorker" in navigator) {
-      window.addEventListener("load", () => {
-        navigator.serviceWorker
-          .register("./sw.js")
-          .then(reg => console.log("Service Worker registrado:", reg.scope))
-          .catch(err => console.log("Error al registrar SW:", err));
-      });
+    function cargarRegistro() {
+      const dataStr = localStorage.getItem(LS_REGISTRO);
+      let lista = [];
+      if (dataStr) {
+        try { lista = JSON.parse(dataStr); } catch(e){}
+      }
+      if (!Array.isArray(lista)) lista = [];
+      return lista;
     }
+
+    function guardarRegistro(lista) {
+      localStorage.setItem(LS_REGISTRO, JSON.stringify(lista));
+    }
+
+    function agregarRegistroDiario() {
+      const fecha = document.getElementById("reg-fecha").value || hoyISO();
+      const horasStr = document.getElementById("reg-horas").value.trim();
+      const horas = horasStr ? parseFloat(horasStr) : 0;
+      const notas = document.getElementById("reg-notas").value.trim();
+
+      if (!horas || isNaN(horas)) {
+        mostrarStatus("status-registro","Indicá cuántas horas hiciste",false);
+        return;
+      }
+
+      const lista = cargarRegistro();
+      lista.push({
+        id: Date.now(),
+        fecha,
+        horas,
+        notas
+      });
+      guardarRegistro(lista);
+
+      document.getElementById("reg-fecha").value = "";
+      document.getElementById("reg-horas").value = "";
+      document.getElementById("reg-notas").value = "";
+
+      mostrarStatus("status-registro","Registro agregado ✅",true);
+      actualizarResumenInforme();
+    }
+
+    function eliminarRegistro(id) {
+      const lista = cargarRegistro();
+      const idx = lista.findIndex(r => r.id === id);
+      if (idx === -1) return;
+      if (!confirm("¿Eliminar este registro?")) return;
+      lista.splice(idx,1);
+      guardarRegistro(lista);
+      actualizarResumenInforme();
+    }
+
+    function actualizarResumenInforme() {
+      const mesClave = mesActualClave();
+      const chip = document.getElementById("chip-mes-informe");
+      const resumenDiv = document.getElementById("resumen-mes");
+      const tbody = document.getElementById("tabla-registro-diario");
+      const msgSin = document.getElementById("msg-sin-registro");
+
+      const fecha = new Date();
+      const nombreMes = fecha.toLocaleDateString("es-AR",{month:"long", year:"numeric"});
+      chip.textContent = nombreMes.charAt(0).toUpperCase()+nombreMes.slice(1);
+
+      const metas = cargarMetaHoras();
+      const meta = metas[mesClave] || 0;
+      const registros = cargarRegistro().filter(r => (r.fecha || "").startsWith(mesClave));
+
+      tbody.innerHTML = "";
+
+      if (!registros.length) {
+        msgSin.style.display = "block";
+      } else {
+        msgSin.style.display = "none";
+      }
+
+      let total = 0;
+      registros.sort((a,b) => (a.fecha || "").localeCompare(b.fecha || ""));
+      registros.forEach(r => {
+        total += r.horas || 0;
+        const tr = document.createElement("tr");
+        const fechaFmt = new Date(r.fecha+"T00:00:00").toLocaleDateString("es-AR",{day:"2-digit", month:"2-digit"});
+        tr.innerHTML = `
+          <td>${fechaFmt}</td>
+          <td>${(r.horas || 0).toFixed(2)}</td>
+          <td>${r.notas || ""}</td>
+          <td><button class="btn-danger btn-small" onclick="eliminarRegistro(${r.id})">✕</button></td>
+        `;
+        tbody.appendChild(tr);
+      });
+
+      let diff = meta - total;
+      let textoMeta = "";
+      if (!meta) {
+        textoMeta = "No configuraste una meta de horas para este mes.";
+      } else if (diff <= 0) {
+        textoMeta = `Meta de ${meta.toFixed(2)} horas alcanzada ✅ (llevás ${total.toFixed(2)} h).`;
+      } else {
+        textoMeta = `Llevás ${total.toFixed(2)} h de ${meta.toFixed(2)} h. Te faltan ${diff.toFixed(2)} h.`;
+      }
+
+      resumenDiv.innerHTML = `
+        <div class="resumen-linea">
+          <span>Total de horas del mes</span>
+          <strong>${total.toFixed(2)} h</strong>
+        </div>
+        <div class="resumen-linea">
+          <span>Meta configurada</span>
+          <strong>${meta ? meta.toFixed(2)+" h" : "Sin meta"}</strong>
+        </div>
+        <p class="small-text" style="margin-top:0.4rem;">${textoMeta}</p>
+      `;
+
+      // Mostrar meta actual en input
+      document.getElementById("meta-horas").value = meta || "";
+    }
+
+    // ==== Init ====
+
+    window.addEventListener("load", () => {
+      // Territorio color preview
+      const colorInp = document.getElementById("territorio-color");
+      const colorPrev = document.getElementById("territorio-color-preview");
+      colorPrev.style.background = colorInp.value;
+      colorInp.addEventListener("input", () => {
+        colorPrev.style.background = colorInp.value;
+      });
+
+      // Salidas
+      renderSalidasSemana();
+      renderSalidasHoy();
+
+      // Territorios / interesados / informe
+      renderTerritorios();
+      renderInteresados();
+      actualizarResumenInforme();
+
+      // Fecha por defecto en registro diario
+      const regFecha = document.getElementById("reg-fecha");
+      if (regFecha) regFecha.value = hoyISO();
+    });
   </script>
 </body>
 </html>
