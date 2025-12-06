@@ -156,11 +156,6 @@
       font-size: 0.75rem;
       padding: 0.25rem 0.55rem;
     }
-    .btn-outline {
-      background: transparent;
-      border: 1px solid #d1d5db;
-      color: #111827;
-    }
 
     table {
       width: 100%;
@@ -178,17 +173,17 @@
       font-weight: 600;
     }
 
-    .pill {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      padding: 0.1rem 0.5rem;
-      border-radius: 999px;
-      font-size: 0.7rem;
+    .resumen-linea {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.9rem;
+      margin-top: 0.25rem;
     }
-    .pill-estado {
+    .resumen-destacado {
       background: #eef2ff;
-      color: #4338ca;
+      border-radius: 0.7rem;
+      padding: 0.55rem 0.7rem;
+      margin-bottom: 0.4rem;
     }
 
     .status-ok {
@@ -271,19 +266,6 @@
     .interesado-detalle {
       font-size: 0.75rem;
       color: #4b5563;
-    }
-
-    .resumen-linea {
-      display: flex;
-      justify-content: space-between;
-      font-size: 0.9rem;
-      margin-top: 0.25rem;
-    }
-    .resumen-destacado {
-      background: #eef2ff;
-      border-radius: 0.7rem;
-      padding: 0.55rem 0.7rem;
-      margin-bottom: 0.4rem;
     }
 
     /* NAV inferior */
@@ -662,7 +644,7 @@
       const year = parseInt(y,10);
       const month = parseInt(m,10);
       if (isNaN(year) || isNaN(month)) return "";
-      // Septiembre a agosto: si mes >=9 pertenece al año de servicio que termina año+1
+      // Septiembre a agosto
       const startYear = (month >= 9) ? year : year - 1;
       const endYear = startYear + 1;
       return `${startYear}-${endYear}`;
@@ -706,15 +688,17 @@
 
     function cargarSalidasSemana() {
       const dataStr = localStorage.getItem(LS_SALIDAS);
-      let salidas = [];
+      let salidasGuardadas = [];
       if (dataStr) {
         try {
-          salidas = JSON.parse(dataStr);
-        } catch(e) {}
+          salidasGuardadas = JSON.parse(dataStr);
+        } catch (e) {}
       }
-      // Normalizar a nuevo formato
-      if (!Array.isArray(salidas) || salidas.length !== 7) {
-        salidas = DIAS.map(d => ({
+
+      // Siempre usamos el orden DIAS (jueves–miércoles),
+      // solo reutilizamos los datos por índice
+      if (!Array.isArray(salidasGuardadas) || salidasGuardadas.length !== 7) {
+        return DIAS.map(d => ({
           dia: d,
           mananaAct: "",
           mananaHora: "",
@@ -725,9 +709,12 @@
           tardeConductor: "",
           tardeMapa: ""
         }));
-      } else {
-        salidas = salidas.map((fila, idx) => ({
-          dia: fila.dia || DIAS[idx],
+      }
+
+      return DIAS.map((d, idx) => {
+        const fila = salidasGuardadas[idx] || {};
+        return {
+          dia: d,
           mananaAct: (fila.mananaAct !== undefined) ? fila.mananaAct : (fila.manana || ""),
           mananaHora: fila.mananaHora || "",
           mananaConductor: fila.mananaConductor || "",
@@ -736,9 +723,8 @@
           tardeHora: fila.tardeHora || "",
           tardeConductor: fila.tardeConductor || "",
           tardeMapa: fila.tardeMapa || ""
-        }));
-      }
-      return salidas;
+        };
+      });
     }
 
     function obtenerFechasSemanaMes(mesStr) {
@@ -758,7 +744,7 @@
       const fechas = [];
       for (let i = 0; i < 7; i++) {
         const d = new Date(year, month-1, firstThursdayDate + i);
-        fechas.push(d.getDate()); // solo el número de día (aunque pase de mes)
+        fechas.push(d.getDate()); // número de día
       }
       return fechas;
     }
@@ -887,4 +873,246 @@
         html += `<p style="margin-top:0.4rem;"><strong>Tarde:</strong> ${hoyFila.tardeHora || ""} ${hoyFila.tardeAct || ""}</p>`;
         const det2 = [];
         if (hoyFila.tardeConductor) det2.push("Conductor: "+hoyFila.tardeConductor);
-        if (hoyFila.tardeMapa) det2.push("Mapa: "+hoyFila.tardeM
+        if (hoyFila.tardeMapa) det2.push("Mapa: "+hoyFila.tardeMapa);
+        if (det2.length) {
+          html += `<p class="small-text">- ${det2.join(" · ")}</p>`;
+        }
+      }
+
+      cont.innerHTML = html;
+    }
+
+    // ==== Territorios ====
+
+    function cargarTerritorios() {
+      const dataStr = localStorage.getItem(LS_TERRITORIOS);
+      let lista = [];
+      if (dataStr) {
+        try { lista = JSON.parse(dataStr); } catch(e){}
+      }
+      if (!Array.isArray(lista)) lista = [];
+      return lista;
+    }
+
+    function guardarTerritorios(lista) {
+      localStorage.setItem(LS_TERRITORIOS, JSON.stringify(lista));
+    }
+
+    function renderTerritorios() {
+      const lista = cargarTerritorios();
+      const tbody = document.getElementById("tabla-territorios");
+      const chip = document.getElementById("chip-total-territorios");
+      const msgSin = document.getElementById("msg-sin-territorios");
+
+      tbody.innerHTML = "";
+      chip.textContent = `${lista.length} registrados`;
+
+      if (!lista.length) {
+        msgSin.style.display = "block";
+        return;
+      }
+      msgSin.style.display = "none";
+
+      lista.forEach((t, idx) => {
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+          <td>${t.nombre || ""}</td>
+          <td>${t.notas || ""}</td>
+          <td>
+            <div style="display:flex; align-items:center; gap:0.3rem;">
+              <div style="width:16px; height:16px; border-radius:4px; border:1px solid #d1d5db; background:${t.color || "#ffffff"};"></div>
+              <span class="small-text">${t.color || ""}</span>
+            </div>
+          </td>
+          <td>
+            <button class="btn-danger btn-small" onclick="eliminarTerritorio(${idx})">✕</button>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    function agregarTerritorio() {
+      const nombre = document.getElementById("territorio-nombre").value.trim();
+      const color = document.getElementById("territorio-color").value;
+      const notas = document.getElementById("territorio-notas").value.trim();
+
+      if (!nombre) {
+        mostrarStatus("status-territorio","Poné un nombre o número de territorio",false);
+        return;
+      }
+
+      const lista = cargarTerritorios();
+      lista.push({
+        id: Date.now(),
+        nombre,
+        color,
+        notas
+      });
+      guardarTerritorios(lista);
+      renderTerritorios();
+
+      document.getElementById("territorio-nombre").value = "";
+      document.getElementById("territorio-notas").value = "";
+      mostrarStatus("status-territorio","Territorio agregado ✅",true);
+    }
+
+    function eliminarTerritorio(idx) {
+      const lista = cargarTerritorios();
+      if (idx < 0 || idx >= lista.length) return;
+      if (!confirm("¿Eliminar este territorio?")) return;
+      lista.splice(idx,1);
+      guardarTerritorios(lista);
+      renderTerritorios();
+    }
+
+    // Mapa general
+
+    function mostrarMapaPreview(dataUrl) {
+      const wrapper = document.getElementById("mapa-preview-wrapper");
+      const img = document.getElementById("mapa-preview");
+      if (!wrapper || !img) return;
+      if (dataUrl) {
+        img.src = dataUrl;
+        wrapper.style.display = "block";
+      } else {
+        wrapper.style.display = "none";
+      }
+    }
+
+    function cargarMapaGeneral() {
+      const dataUrl = localStorage.getItem(LS_MAPA_GENERAL);
+      if (dataUrl) {
+        mostrarMapaPreview(dataUrl);
+      }
+    }
+
+    function subirMapaGeneral(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const dataUrl = e.target.result;
+        localStorage.setItem(LS_MAPA_GENERAL, dataUrl);
+        mostrarMapaPreview(dataUrl);
+        mostrarStatus("status-territorio","Mapa general guardado ✅",true);
+      };
+      reader.readAsDataURL(file);
+    }
+
+    function abrirMapaAmpliado() {
+      const dataUrl = localStorage.getItem(LS_MAPA_GENERAL);
+      if (!dataUrl) return;
+      const modal = document.getElementById("mapa-modal");
+      const img = document.getElementById("mapa-modal-img");
+      img.src = dataUrl;
+      modal.style.display = "flex";
+    }
+
+    function cerrarMapaAmpliado(ev) {
+      if (ev) ev.stopPropagation();
+      const modal = document.getElementById("mapa-modal");
+      modal.style.display = "none";
+    }
+
+    // ==== Interesados ====
+
+    function cargarInteresados() {
+      const dataStr = localStorage.getItem(LS_INTERESADOS);
+      let lista = [];
+      if (dataStr) {
+        try { lista = JSON.parse(dataStr); } catch(e){}
+      }
+      if (!Array.isArray(lista)) lista = [];
+      return lista;
+    }
+
+    function guardarInteresados(lista) {
+      localStorage.setItem(LS_INTERESADOS, JSON.stringify(lista));
+    }
+
+    function agregarInteresado() {
+      const nombre = document.getElementById("int-nombre").value.trim();
+      const dir = document.getElementById("int-direccion").value.trim();
+      const tel = document.getElementById("int-telefono").value.trim();
+      const terr = document.getElementById("int-territorio").value.trim();
+      const notas = document.getElementById("int-notas").value.trim();
+
+      if (!nombre) {
+        mostrarStatus("status-interesado","Poné al menos el nombre",false);
+        return;
+      }
+
+      const lista = cargarInteresados();
+      lista.push({
+        id: Date.now(),
+        nombre,
+        direccion: dir,
+        telefono: tel,
+        territorio: terr,
+        notas
+      });
+      guardarInteresados(lista);
+
+      document.getElementById("int-nombre").value = "";
+      document.getElementById("int-direccion").value = "";
+      document.getElementById("int-telefono").value = "";
+      document.getElementById("int-territorio").value = "";
+      document.getElementById("int-notas").value = "";
+
+      renderInteresados();
+      mostrarStatus("status-interesado","Interesado agregado ✅",true);
+    }
+
+    function eliminarInteresado(id) {
+      const lista = cargarInteresados();
+      const idx = lista.findIndex(i => i.id === id);
+      if (idx === -1) return;
+      if (!confirm("¿Eliminar este interesado?")) return;
+      lista.splice(idx,1);
+      guardarInteresados(lista);
+      renderInteresados();
+    }
+
+    function renderInteresados() {
+      const lista = cargarInteresados();
+      const cont = document.getElementById("lista-interesados");
+      const chip = document.getElementById("chip-total-interesados");
+      const msgSin = document.getElementById("msg-sin-interesados");
+      const filtro = document.getElementById("buscador-interesados").value.trim().toLowerCase();
+
+      chip.textContent = `${lista.length} contactos`;
+      cont.innerHTML = "";
+
+      const filtrados = lista.filter(i => {
+        if (!filtro) return true;
+        const txt = (i.nombre + " " + i.direccion + " " + i.territorio).toLowerCase();
+        return txt.includes(filtro);
+      });
+
+      if (!lista.length) {
+        msgSin.style.display = "block";
+      } else {
+        msgSin.style.display = "none";
+      }
+
+      if (!filtrados.length && lista.length) {
+        cont.innerHTML = `<p class="small-text">No hay resultados para ese filtro.</p>`;
+        return;
+      }
+
+      filtrados.forEach(i => {
+        const div = document.createElement("div");
+        div.className = "interesado-card";
+        div.innerHTML = `
+          <div class="interesado-nombre">${i.nombre}</div>
+          <div class="interesado-detalle">
+            ${i.direccion ? "<strong>Dirección:</strong> "+i.direccion+"<br/>" : ""}
+            ${i.telefono ? "<strong>Tel:</strong> "+i.telefono+"<br/>" : ""}
+            ${i.territorio ? "<strong>Territorio:</strong> "+i.territorio+"<br/>" : ""}
+            ${i.notas ? "<strong>Notas:</strong> "+i.notas : ""}
+          </div>
+          <div style="margin-top:0.25rem;">
+            <button class="btn-danger btn-small" onclick="eliminarInteresado(${i.id})">Eliminar</button>
+          </div
+::contentReference[oaicite:0]{index=0}
