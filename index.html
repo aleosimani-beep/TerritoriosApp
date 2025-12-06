@@ -207,13 +207,32 @@
     .salidas-grid {
       display: grid;
       grid-template-columns: 1.2fr 1fr 1fr;
-      gap: 0.2rem;
-      align-items: center;
+      gap: 0.3rem;
+      align-items: flex-start;
+      margin-top: 0.2rem;
     }
     .salidas-grid-header div {
       font-size: 0.78rem;
       font-weight: 600;
       color: #374151;
+    }
+    .mini-label {
+      font-size: 0.7rem;
+      color: #6b7280;
+      margin-bottom: 0.1rem;
+    }
+    .bloque-periodo {
+      border-radius: 0.6rem;
+      border: 1px solid #e5e7eb;
+      padding: 0.35rem 0.4rem;
+      background: #f9fafb;
+      box-sizing: border-box;
+    }
+    .bloque-periodo input[type="text"],
+    .bloque-periodo input[type="time"] {
+      margin-bottom: 0.25rem;
+      font-size: 0.8rem;
+      padding: 0.3rem 0.4rem;
     }
 
     .territorio-color-preview {
@@ -257,8 +276,14 @@
     .resumen-linea {
       display: flex;
       justify-content: space-between;
-      font-size: 0.8rem;
-      margin-top: 0.2rem;
+      font-size: 0.9rem;
+      margin-top: 0.25rem;
+    }
+    .resumen-destacado {
+      background: #eef2ff;
+      border-radius: 0.7rem;
+      padding: 0.55rem 0.7rem;
+      margin-bottom: 0.4rem;
     }
 
     /* NAV inferior */
@@ -311,6 +336,30 @@
         border-radius: 999px 999px 0 0;
       }
     }
+
+    /* Modal mapa general */
+    .mapa-modal {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.75);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 50;
+    }
+    .mapa-modal img {
+      max-width: 90vw;
+      max-height: 85vh;
+      border-radius: 0.75rem;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.4);
+    }
+    .mapa-modal button {
+      position: absolute;
+      top: 1rem;
+      right: 1rem;
+      background: #111827;
+      color: #f9fafb;
+    }
   </style>
 </head>
 <body>
@@ -345,7 +394,7 @@
             <button class="flex-1 btn-secondary" onclick="cambiarSeccion('informe')">⏱️ Registrar horas</button>
           </div>
           <p class="small-text" style="margin-top:0.5rem;">
-            Todo se guarda automáticamente en este dispositivo. Si borrás el historial o los datos del navegador, se pierden.
+            Todo se guarda automáticamente en este dispositivo. Si borrás el historial o los datos del navegador, se pierde.
           </p>
         </div>
       </section>
@@ -355,13 +404,16 @@
         <div class="card">
           <div class="card-header">
             <h2>Programa semanal de salidas</h2>
-            <span class="chip">Mañana / Tarde</span>
+            <span class="chip">Encuentros mañana / tarde</span>
           </div>
           <p class="small-text">
-            Definí para cada día las salidas de mañana y tarde (por ej. “Territorios 1-2”, “Predicación pública”, etc.).
+            Definí para cada día el encuentro, hora, conductor y mapa de las salidas de mañana y tarde.
           </p>
 
-          <div class="salidas-grid salidas-grid-header" style="margin-top:0.4rem;">
+          <label for="salidas-mes">Mes del programa</label>
+          <input id="salidas-mes" type="month" onchange="cambiarMesSalidas()" />
+
+          <div class="salidas-grid salidas-grid-header" style="margin-top:0.6rem;">
             <div>Día</div>
             <div>Mañana</div>
             <div>Tarde</div>
@@ -386,7 +438,15 @@
             Podés usar el color como referencia visual: por ejemplo, verde = trabajado recientemente, amarillo = por hacer, rojo = pendiente.
           </p>
 
-          <h3>Nuevo territorio</h3>
+          <h3>Mapa general</h3>
+          <label for="input-mapa">Subir imagen del mapa general</label>
+          <input id="input-mapa" type="file" accept="image/*" onchange="subirMapaGeneral(event)" />
+          <div id="mapa-preview-wrapper" style="margin-top:0.4rem; display:none;">
+            <img id="mapa-preview" alt="Mapa general" style="max-width:100%; border-radius:0.5rem; border:1px solid #d1d5db; cursor:pointer;" onclick="abrirMapaAmpliado()" />
+            <p class="small-text">Tocá la imagen para verla ampliada.</p>
+          </div>
+
+          <h3 style="margin-top:0.9rem;">Nuevo territorio</h3>
           <div class="flex-row">
             <div class="flex-1">
               <label for="territorio-nombre">Nombre / número</label>
@@ -482,14 +542,18 @@
             <h2>Mi informe</h2>
             <span class="chip" id="chip-mes-informe"></span>
           </div>
-          <h3>Meta mensual</h3>
+          <h3>Metas</h3>
           <div class="flex-row">
             <div class="flex-1">
               <label for="meta-horas">Horas meta (mes actual)</label>
               <input id="meta-horas" type="number" min="0" step="0.5" />
             </div>
+            <div class="flex-1">
+              <label for="meta-anual">Meta anual (septiembre–agosto)</label>
+              <input id="meta-anual" type="number" min="0" step="1" />
+            </div>
           </div>
-          <button onclick="guardarMetaHoras()">Guardar meta</button>
+          <button onclick="guardarMetas()">Guardar metas</button>
           <div id="status-meta" class="status-ok" style="display:none;"></div>
         </div>
 
@@ -504,9 +568,11 @@
               <label for="reg-horas">Horas</label>
               <input id="reg-horas" type="number" min="0" step="0.25" />
             </div>
+            <div style="width:110px;">
+              <label for="reg-cursos">Cursos</label>
+              <input id="reg-cursos" type="number" min="0" step="1" />
+            </div>
           </div>
-          <label for="reg-notas">Notas</label>
-          <textarea id="reg-notas" placeholder="Actividad, con quién saliste, detalles..."></textarea>
 
           <button onclick="agregarRegistroDiario()">Agregar al registro</button>
           <div id="status-registro" class="status-ok" style="display:none;"></div>
@@ -520,7 +586,7 @@
               <tr>
                 <th>Fecha</th>
                 <th>Horas</th>
-                <th>Notas</th>
+                <th>Cursos</th>
                 <th></th>
               </tr>
             </thead>
@@ -558,14 +624,23 @@
     </button>
   </div>
 
+  <!-- Modal mapa ampliado -->
+  <div id="mapa-modal" class="mapa-modal" onclick="cerrarMapaAmpliado(event)">
+    <img id="mapa-modal-img" alt="Mapa general ampliado" />
+    <button type="button" onclick="cerrarMapaAmpliado(event)">Cerrar ✕</button>
+  </div>
+
   <script>
     // ==== Constantes / helpers generales ====
 
     const LS_SALIDAS = "territorios_salidasSemana";
+    const LS_SALIDAS_MES = "territorios_salidasMes";
     const LS_TERRITORIOS = "territorios_lista";
     const LS_INTERESADOS = "territorios_interesados";
     const LS_META_HORAS = "territorios_metaHoras";
+    const LS_META_ANUAL = "territorios_metaAnual";
     const LS_REGISTRO = "territorios_registroDiario";
+    const LS_MAPA_GENERAL = "territorios_mapaGeneral";
 
     const DIAS = [
       "Lunes","Martes","Miércoles","Jueves","Viernes","Sábado","Domingo"
@@ -578,6 +653,22 @@
 
     function mesActualClave() {
       return hoyISO().slice(0,7); // YYYY-MM
+    }
+
+    function serviceYearKeyFromDate(dateStr) {
+      if (!dateStr) return "";
+      const [y,m] = dateStr.split("-");
+      const year = parseInt(y,10);
+      const month = parseInt(m,10);
+      if (isNaN(year) || isNaN(month)) return "";
+      // Septiembre a agosto: si mes >=9 pertenece al año de servicio que termina año+1
+      const startYear = (month >= 9) ? year : year - 1;
+      const endYear = startYear + 1;
+      return `${startYear}-${endYear}`;
+    }
+
+    function currentServiceYearKey() {
+      return serviceYearKeyFromDate(hoyISO());
     }
 
     function mostrarStatus(id, msg, ok=true) {
@@ -620,10 +711,59 @@
           salidas = JSON.parse(dataStr);
         } catch(e) {}
       }
+      // Normalizar a nuevo formato
       if (!Array.isArray(salidas) || salidas.length !== 7) {
-        salidas = DIAS.map(d => ({ dia: d, manana: "", tarde: "" }));
+        salidas = DIAS.map(d => ({
+          dia: d,
+          mananaAct: "",
+          mananaHora: "",
+          mananaConductor: "",
+          mananaMapa: "",
+          tardeAct: "",
+          tardeHora: "",
+          tardeConductor: "",
+          tardeMapa: ""
+        }));
+      } else {
+        salidas = salidas.map((fila, idx) => ({
+          dia: fila.dia || DIAS[idx],
+          mananaAct: (fila.mananaAct !== undefined) ? fila.mananaAct : (fila.manana || ""),
+          mananaHora: fila.mananaHora || "",
+          mananaConductor: fila.mananaConductor || "",
+          mananaMapa: fila.mananaMapa || "",
+          tardeAct: (fila.tardeAct !== undefined) ? fila.tardeAct : (fila.tarde || ""),
+          tardeHora: fila.tardeHora || "",
+          tardeConductor: fila.tardeConductor || "",
+          tardeMapa: fila.tardeMapa || ""
+        }));
       }
       return salidas;
+    }
+
+    function obtenerFechasSemanaMes(mesStr) {
+      // Devuelve array de 7 números de día (o "") para la semana del primer lunes del mes
+      if (!mesStr) return Array(7).fill("");
+      const partes = mesStr.split("-");
+      if (partes.length !== 2) return Array(7).fill("");
+      const year = parseInt(partes[0],10);
+      const month = parseInt(partes[1],10); // 1-12
+      if (isNaN(year) || isNaN(month)) return Array(7).fill("");
+
+      const firstDay = new Date(year, month-1, 1);
+      const firstDayDow = (firstDay.getDay() + 6) % 7; // Lunes=0 ... Domingo=6
+      let mondayDate = 1 + ((7 - firstDayDow) % 7);
+      const daysInMonth = new Date(year, month, 0).getDate();
+
+      const fechas = [];
+      for (let i = 0; i < 7; i++) {
+        const d = mondayDate + i;
+        if (d >= 1 && d <= daysInMonth) {
+          fechas.push(d);
+        } else {
+          fechas.push("");
+        }
+      }
+      return fechas;
     }
 
     function renderSalidasSemana() {
@@ -631,13 +771,50 @@
       cont.innerHTML = "";
       const salidas = cargarSalidasSemana();
 
+      const mesGuardado = localStorage.getItem(LS_SALIDAS_MES) || mesActualClave();
+      const fechas = obtenerFechasSemanaMes(mesGuardado);
+
       salidas.forEach((fila, idx) => {
         const row = document.createElement("div");
         row.className = "salidas-grid";
+
+        const numeroDia = fechas[idx] || "";
+        const etiquetaDia = numeroDia ? `${fila.dia} ${numeroDia}` : fila.dia;
+
         row.innerHTML = `
-          <div class="small-text">${fila.dia}</div>
-          <div><input type="text" id="salida-manana-${idx}" value="${fila.manana || ""}" placeholder="Ej: Territorio 1" /></div>
-          <div><input type="text" id="salida-tarde-${idx}" value="${fila.tarde || ""}" placeholder="Ej: Territorio 2" /></div>
+          <div class="small-text">${etiquetaDia}</div>
+          <div class="bloque-periodo">
+            <div class="mini-label">Encuentro</div>
+            <input type="text" id="manana-act-${idx}" value="${fila.mananaAct || ""}" placeholder="Ej: Encuentro 1" />
+            <div class="flex-row">
+              <div class="flex-1">
+                <div class="mini-label">Hora</div>
+                <input type="time" id="manana-hora-${idx}" value="${fila.mananaHora || ""}" />
+              </div>
+              <div class="flex-1">
+                <div class="mini-label">Conductor</div>
+                <input type="text" id="manana-cond-${idx}" value="${fila.mananaConductor || ""}" />
+              </div>
+            </div>
+            <div class="mini-label">Mapa / punto de encuentro</div>
+            <input type="text" id="manana-mapa-${idx}" value="${fila.mananaMapa || ""}" placeholder="Ej: Plaza X, Mapa 3" />
+          </div>
+          <div class="bloque-periodo">
+            <div class="mini-label">Encuentro</div>
+            <input type="text" id="tarde-act-${idx}" value="${fila.tardeAct || ""}" placeholder="Ej: Encuentro 2" />
+            <div class="flex-row">
+              <div class="flex-1">
+                <div class="mini-label">Hora</div>
+                <input type="time" id="tarde-hora-${idx}" value="${fila.tardeHora || ""}" />
+              </div>
+              <div class="flex-1">
+                <div class="mini-label">Conductor</div>
+                <input type="text" id="tarde-cond-${idx}" value="${fila.tardeConductor || ""}" />
+              </div>
+            </div>
+            <div class="mini-label">Mapa / punto de encuentro</div>
+            <input type="text" id="tarde-mapa-${idx}" value="${fila.tardeMapa || ""}" placeholder="Ej: Plaza Y, Mapa 4" />
+          </div>
         `;
         cont.appendChild(row);
       });
@@ -646,12 +823,27 @@
     function guardarSalidasSemana() {
       const salidas = DIAS.map((dia, idx) => ({
         dia,
-        manana: document.getElementById("salida-manana-"+idx).value.trim(),
-        tarde: document.getElementById("salida-tarde-"+idx).value.trim()
+        mananaAct: document.getElementById("manana-act-"+idx).value.trim(),
+        mananaHora: document.getElementById("manana-hora-"+idx).value.trim(),
+        mananaConductor: document.getElementById("manana-cond-"+idx).value.trim(),
+        mananaMapa: document.getElementById("manana-mapa-"+idx).value.trim(),
+        tardeAct: document.getElementById("tarde-act-"+idx).value.trim(),
+        tardeHora: document.getElementById("tarde-hora-"+idx).value.trim(),
+        tardeConductor: document.getElementById("tarde-cond-"+idx).value.trim(),
+        tardeMapa: document.getElementById("tarde-mapa-"+idx).value.trim()
       }));
       localStorage.setItem(LS_SALIDAS, JSON.stringify(salidas));
       mostrarStatus("status-salidas","Programa guardado ✅",true);
       renderSalidasHoy();
+    }
+
+    function cambiarMesSalidas() {
+      const inp = document.getElementById("salidas-mes");
+      if (!inp) return;
+      const val = inp.value;
+      if (!val) return;
+      localStorage.setItem(LS_SALIDAS_MES, val);
+      renderSalidasSemana();
     }
 
     function renderSalidasHoy() {
@@ -670,17 +862,37 @@
       const salidas = cargarSalidasSemana();
       const hoyFila = salidas[diaIndex];
 
-      if (!hoyFila || (!hoyFila.manana && !hoyFila.tarde)) {
+      if (!hoyFila) {
         cont.innerHTML = `<p class="small-text">Para hoy no hay salidas configuradas en el programa semanal.</p>`;
         return;
       }
 
       let html = "";
-      if (hoyFila.manana) {
-        html += `<p><strong>Mañana:</strong> ${hoyFila.manana}</p>`;
+      const tieneManana = hoyFila.mananaAct || hoyFila.mananaHora || hoyFila.mananaMapa || hoyFila.mananaConductor;
+      const tieneTarde = hoyFila.tardeAct || hoyFila.tardeHora || hoyFila.tardeMapa || hoyFila.tardeConductor;
+
+      if (!tieneManana && !tieneTarde) {
+        cont.innerHTML = `<p class="small-text">Para hoy no hay salidas configuradas en el programa semanal.</p>`;
+        return;
       }
-      if (hoyFila.tarde) {
-        html += `<p><strong>Tarde:</strong> ${hoyFila.tarde}</p>`;
+
+      if (tieneManana) {
+        html += `<p><strong>Mañana:</strong> ${hoyFila.mananaHora || ""} ${hoyFila.mananaAct || ""}</p>`;
+        const det = [];
+        if (hoyFila.mananaConductor) det.push("Conductor: "+hoyFila.mananaConductor);
+        if (hoyFila.mananaMapa) det.push("Mapa: "+hoyFila.mananaMapa);
+        if (det.length) {
+          html += `<p class="small-text">- ${det.join(" · ")}</p>`;
+        }
+      }
+      if (tieneTarde) {
+        html += `<p style="margin-top:0.4rem;"><strong>Tarde:</strong> ${hoyFila.tardeHora || ""} ${hoyFila.tardeAct || ""}</p>`;
+        const det2 = [];
+        if (hoyFila.tardeConductor) det2.push("Conductor: "+hoyFila.tardeConductor);
+        if (hoyFila.tardeMapa) det2.push("Mapa: "+hoyFila.tardeMapa);
+        if (det2.length) {
+          html += `<p class="small-text">- ${det2.join(" · ")}</p>`;
+        }
       }
 
       cont.innerHTML = html;
@@ -768,6 +980,55 @@
       lista.splice(idx,1);
       guardarTerritorios(lista);
       renderTerritorios();
+    }
+
+    // Mapa general
+
+    function mostrarMapaPreview(dataUrl) {
+      const wrapper = document.getElementById("mapa-preview-wrapper");
+      const img = document.getElementById("mapa-preview");
+      if (!wrapper || !img) return;
+      if (dataUrl) {
+        img.src = dataUrl;
+        wrapper.style.display = "block";
+      } else {
+        wrapper.style.display = "none";
+      }
+    }
+
+    function cargarMapaGeneral() {
+      const dataUrl = localStorage.getItem(LS_MAPA_GENERAL);
+      if (dataUrl) {
+        mostrarMapaPreview(dataUrl);
+      }
+    }
+
+    function subirMapaGeneral(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const dataUrl = e.target.result;
+        localStorage.setItem(LS_MAPA_GENERAL, dataUrl);
+        mostrarMapaPreview(dataUrl);
+        mostrarStatus("status-territorio","Mapa general guardado ✅",true);
+      };
+      reader.readAsDataURL(file);
+    }
+
+    function abrirMapaAmpliado() {
+      const dataUrl = localStorage.getItem(LS_MAPA_GENERAL);
+      if (!dataUrl) return;
+      const modal = document.getElementById("mapa-modal");
+      const img = document.getElementById("mapa-modal-img");
+      img.src = dataUrl;
+      modal.style.display = "flex";
+    }
+
+    function cerrarMapaAmpliado(ev) {
+      if (ev) ev.stopPropagation();
+      const modal = document.getElementById("mapa-modal");
+      modal.style.display = "none";
     }
 
     // ==== Interesados ====
@@ -884,13 +1145,28 @@
       return {};
     }
 
-    function guardarMetaHoras() {
+    function cargarMetaAnual() {
+      const dataStr = localStorage.getItem(LS_META_ANUAL);
+      if (!dataStr) return {};
+      try { return JSON.parse(dataStr); } catch(e){}
+      return {};
+    }
+
+    function guardarMetas() {
       const metaHorasStr = document.getElementById("meta-horas").value.trim();
-      const meta = metaHorasStr ? parseFloat(metaHorasStr) : 0;
-      const metas = cargarMetaHoras();
-      metas[mesActualClave()] = isNaN(meta) ? 0 : meta;
-      localStorage.setItem(LS_META_HORAS, JSON.stringify(metas));
-      mostrarStatus("status-meta","Meta guardada ✅",true);
+      const metaMensual = metaHorasStr ? parseFloat(metaHorasStr) : 0;
+      const metaAnualStr = document.getElementById("meta-anual").value.trim();
+      const metaAnualVal = metaAnualStr ? parseFloat(metaAnualStr) : 0;
+
+      const metasMes = cargarMetaHoras();
+      metasMes[mesActualClave()] = isNaN(metaMensual) ? 0 : metaMensual;
+      localStorage.setItem(LS_META_HORAS, JSON.stringify(metasMes));
+
+      const metasAnual = cargarMetaAnual();
+      metasAnual[currentServiceYearKey()] = isNaN(metaAnualVal) ? 0 : metaAnualVal;
+      localStorage.setItem(LS_META_ANUAL, JSON.stringify(metasAnual));
+
+      mostrarStatus("status-meta","Metas guardadas ✅",true);
       actualizarResumenInforme();
     }
 
@@ -912,7 +1188,8 @@
       const fecha = document.getElementById("reg-fecha").value || hoyISO();
       const horasStr = document.getElementById("reg-horas").value.trim();
       const horas = horasStr ? parseFloat(horasStr) : 0;
-      const notas = document.getElementById("reg-notas").value.trim();
+      const cursosStr = document.getElementById("reg-cursos").value.trim();
+      const cursos = cursosStr ? parseInt(cursosStr,10) : 0;
 
       if (!horas || isNaN(horas)) {
         mostrarStatus("status-registro","Indicá cuántas horas hiciste",false);
@@ -924,13 +1201,13 @@
         id: Date.now(),
         fecha,
         horas,
-        notas
+        cursos: isNaN(cursos) ? 0 : cursos
       });
       guardarRegistro(lista);
 
       document.getElementById("reg-fecha").value = "";
       document.getElementById("reg-horas").value = "";
-      document.getElementById("reg-notas").value = "";
+      document.getElementById("reg-cursos").value = "";
 
       mostrarStatus("status-registro","Registro agregado ✅",true);
       actualizarResumenInforme();
@@ -957,57 +1234,91 @@
       const nombreMes = fecha.toLocaleDateString("es-AR",{month:"long", year:"numeric"});
       chip.textContent = nombreMes.charAt(0).toUpperCase()+nombreMes.slice(1);
 
-      const metas = cargarMetaHoras();
-      const meta = metas[mesClave] || 0;
-      const registros = cargarRegistro().filter(r => (r.fecha || "").startsWith(mesClave));
+      const metasMes = cargarMetaHoras();
+      const metaMensual = metasMes[mesClave] || 0;
+
+      const metasAnual = cargarMetaAnual();
+      const servKey = currentServiceYearKey();
+      const metaAnual = metasAnual[servKey] || 0;
+
+      const registrosTodos = cargarRegistro();
+      const registrosMes = registrosTodos.filter(r => (r.fecha || "").startsWith(mesClave));
+      const registrosServiceYear = registrosTodos.filter(r => serviceYearKeyFromDate(r.fecha || "") === servKey);
 
       tbody.innerHTML = "";
 
-      if (!registros.length) {
+      if (!registrosMes.length) {
         msgSin.style.display = "block";
       } else {
         msgSin.style.display = "none";
       }
 
-      let total = 0;
-      registros.sort((a,b) => (a.fecha || "").localeCompare(b.fecha || ""));
-      registros.forEach(r => {
-        total += r.horas || 0;
+      let totalHorasMes = 0;
+      let totalCursosMes = 0;
+      registrosMes.sort((a,b) => (a.fecha || "").localeCompare(b.fecha || ""));
+      registrosMes.forEach(r => {
+        totalHorasMes += r.horas || 0;
+        totalCursosMes += r.cursos || 0;
         const tr = document.createElement("tr");
         const fechaFmt = new Date(r.fecha+"T00:00:00").toLocaleDateString("es-AR",{day:"2-digit", month:"2-digit"});
         tr.innerHTML = `
           <td>${fechaFmt}</td>
           <td>${(r.horas || 0).toFixed(2)}</td>
-          <td>${r.notas || ""}</td>
+          <td>${r.cursos || 0}</td>
           <td><button class="btn-danger btn-small" onclick="eliminarRegistro(${r.id})">✕</button></td>
         `;
         tbody.appendChild(tr);
       });
 
-      let diff = meta - total;
-      let textoMeta = "";
-      if (!meta) {
-        textoMeta = "No configuraste una meta de horas para este mes.";
-      } else if (diff <= 0) {
-        textoMeta = `Meta de ${meta.toFixed(2)} horas alcanzada ✅ (llevás ${total.toFixed(2)} h).`;
+      let totalHorasAnual = 0;
+      registrosServiceYear.forEach(r => totalHorasAnual += r.horas || 0);
+
+      let textoMetaMensual = "";
+      if (!metaMensual) {
+        textoMetaMensual = "No configuraste una meta mensual de horas.";
+      } else if (metaMensual && totalHorasMes >= metaMensual) {
+        textoMetaMensual = `Meta mensual de ${metaMensual.toFixed(2)} horas alcanzada ✅ (llevás ${totalHorasMes.toFixed(2)} h).`;
       } else {
-        textoMeta = `Llevás ${total.toFixed(2)} h de ${meta.toFixed(2)} h. Te faltan ${diff.toFixed(2)} h.`;
+        const diff = metaMensual - totalHorasMes;
+        textoMetaMensual = `Llevás ${totalHorasMes.toFixed(2)} h de ${metaMensual.toFixed(2)} h. Te faltan ${diff.toFixed(2)} h.`;
+      }
+
+      let textoMetaAnual = "";
+      if (!metaAnual) {
+        textoMetaAnual = `Meta anual no configurada para el año de servicio ${servKey}.`;
+      } else if (totalHorasAnual >= metaAnual) {
+        textoMetaAnual = `Meta anual de ${metaAnual.toFixed(0)} h alcanzada ✅ (llevás ${totalHorasAnual.toFixed(2)} h).`;
+      } else {
+        const diffA = metaAnual - totalHorasAnual;
+        textoMetaAnual = `Año de servicio ${servKey}: llevás ${totalHorasAnual.toFixed(2)} h de ${metaAnual.toFixed(0)} h. Te faltan ${diffA.toFixed(2)} h.`;
       }
 
       resumenDiv.innerHTML = `
-        <div class="resumen-linea">
-          <span>Total de horas del mes</span>
-          <strong>${total.toFixed(2)} h</strong>
+        <div class="resumen-destacado">
+          <div class="resumen-linea">
+            <span>Total de horas del mes</span>
+            <strong>${totalHorasMes.toFixed(2)} h</strong>
+          </div>
+          <div class="resumen-linea">
+            <span>Total de cursos del mes</span>
+            <strong>${totalCursosMes}</strong>
+          </div>
+          <div class="resumen-linea">
+            <span>Meta mensual configurada</span>
+            <strong>${metaMensual ? metaMensual.toFixed(2)+" h" : "Sin meta"}</strong>
+          </div>
+          <div class="resumen-linea">
+            <span>Horas en año de servicio (${servKey})</span>
+            <strong>${totalHorasAnual.toFixed(2)} h</strong>
+          </div>
         </div>
-        <div class="resumen-linea">
-          <span>Meta configurada</span>
-          <strong>${meta ? meta.toFixed(2)+" h" : "Sin meta"}</strong>
-        </div>
-        <p class="small-text" style="margin-top:0.4rem;">${textoMeta}</p>
+        <p class="small-text" style="margin-top:0.2rem;">${textoMetaMensual}</p>
+        <p class="small-text" style="margin-top:0.2rem;">${textoMetaAnual}</p>
       `;
 
-      // Mostrar meta actual en input
-      document.getElementById("meta-horas").value = meta || "";
+      // Mostrar metas actuales en inputs
+      document.getElementById("meta-horas").value = metaMensual || "";
+      document.getElementById("meta-anual").value = metaAnual || "";
     }
 
     // ==== Init ====
@@ -1021,13 +1332,22 @@
         colorPrev.style.background = colorInp.value;
       });
 
+      // Mes del programa de salidas
+      const inpMesSalidas = document.getElementById("salidas-mes");
+      if (inpMesSalidas) {
+        const mesGuardado = localStorage.getItem(LS_SALIDAS_MES) || mesActualClave();
+        inpMesSalidas.value = mesGuardado;
+        localStorage.setItem(LS_SALIDAS_MES, mesGuardado);
+      }
+
       // Salidas
       renderSalidasSemana();
       renderSalidasHoy();
 
-      // Territorios / interesados / informe
+      // Territorios / interesados / informe / mapa
       renderTerritorios();
       renderInteresados();
+      cargarMapaGeneral();
       actualizarResumenInforme();
 
       // Fecha por defecto en registro diario
