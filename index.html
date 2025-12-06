@@ -332,6 +332,7 @@
       color: #4b5563;
     }
 
+    /* --- Bottom nav tipo app --- */
     .bottom-nav {
       position: fixed;
       left: 0;
@@ -365,9 +366,12 @@
       line-height: 1;
     }
 
+    .bottom-nav a.activo {
+      color: #e5e7eb;
+    }
+
     .bottom-nav a:active {
       transform: scale(0.96);
-      color: #e5e7eb;
     }
 
     @media (min-width: 900px) {
@@ -402,10 +406,6 @@
       background: #111827;
       color: #f9fafb;
     }
-
-    section {
-      scroll-margin-top: 4rem;
-    }
   </style>
 </head>
 <body>
@@ -419,8 +419,8 @@
     </header>
 
     <main>
-      <!-- INICIO -->
-      <section id="inicio">
+      <!-- INICIO (ÚNICA visible al arrancar) -->
+      <section id="inicio" style="display:block;">
         <div class="card">
           <div class="card-header">
             <h2><span class="icon-title">✨</span>Salidas de hoy</h2>
@@ -436,10 +436,10 @@
             <h2><span class="icon-title">⚡</span>Atajos rápidos</h2>
           </div>
           <div class="flex-row">
-            <a href="#salidas" class="flex-1" style="text-decoration:none;">
+            <a href="#salidas" class="flex-1" style="text-decoration:none;" onclick="cambiarSeccion('salidas'); return false;">
               <button class="flex-1" style="width:100%;">📅 Editar salidas</button>
             </a>
-            <a href="#informe" class="flex-1" style="text-decoration:none;">
+            <a href="#informe" class="flex-1" style="text-decoration:none;" onclick="cambiarSeccion('informe'); return false;">
               <button class="flex-1 btn-secondary" style="width:100%;">⏱️ Registrar horas</button>
             </a>
           </div>
@@ -450,7 +450,7 @@
       </section>
 
       <!-- SALIDAS -->
-      <section id="salidas">
+      <section id="salidas" style="display:none;">
         <div class="card">
           <div class="card-header">
             <h2><span class="icon-title">📅</span>Programa semanal de salidas</h2>
@@ -478,7 +478,7 @@
       </section>
 
       <!-- TERRITORIOS -->
-      <section id="territorios">
+      <section id="territorios" style="display:none;">
         <div class="card">
           <div class="card-header">
             <h2><span class="icon-title">🗺️</span>Territorios</h2>
@@ -539,7 +539,7 @@
       </section>
 
       <!-- INTERESADOS -->
-      <section id="interesados">
+      <section id="interesados" style="display:none;">
         <div class="card">
           <div class="card-header">
             <h2><span class="icon-title">👥</span>Interesados</h2>
@@ -586,7 +586,7 @@
       </section>
 
       <!-- INFORME -->
-      <section id="informe">
+      <section id="informe" style="display:none;">
         <div class="card">
           <div class="card-header">
             <h2><span class="icon-title">⏱️</span>Mi informe</h2>
@@ -652,23 +652,23 @@
 
   <!-- NAV inferior -->
   <div class="bottom-nav">
-    <a href="#inicio">
+    <a href="#inicio" data-seccion="inicio" class="activo" onclick="cambiarSeccion('inicio'); return false;">
       <span class="icon">🏠</span>
       <span>Inicio</span>
     </a>
-    <a href="#salidas">
+    <a href="#salidas" data-seccion="salidas" onclick="cambiarSeccion('salidas'); return false;">
       <span class="icon">📅</span>
       <span>Salidas</span>
     </a>
-    <a href="#territorios">
+    <a href="#territorios" data-seccion="territorios" onclick="cambiarSeccion('territorios'); return false;">
       <span class="icon">🗺️</span>
       <span>Territorios</span>
     </a>
-    <a href="#interesados">
+    <a href="#interesados" data-seccion="interesados" onclick="cambiarSeccion('interesados'); return false;">
       <span class="icon">👥</span>
       <span>Interesados</span>
     </a>
-    <a href="#informe">
+    <a href="#informe" data-seccion="informe" onclick="cambiarSeccion('informe'); return false;">
       <span class="icon">⏱️</span>
       <span>Informe</span>
     </a>
@@ -691,6 +691,22 @@
     const LS_MAPA_GENERAL = "territorios_mapaGeneral";
 
     const DIAS = ["Jueves","Viernes","Sábado","Domingo","Lunes","Martes","Miércoles"];
+
+    // Cambiar pantalla
+    function cambiarSeccion(id) {
+      const secciones = document.querySelectorAll("main section");
+      secciones.forEach(sec => {
+        sec.style.display = (sec.id === id) ? "block" : "none";
+      });
+      const links = document.querySelectorAll(".bottom-nav a");
+      links.forEach(a => {
+        if (a.getAttribute("data-seccion") === id) {
+          a.classList.add("activo");
+        } else {
+          a.classList.remove("activo");
+        }
+      });
+    }
 
     function hoyISO() {
       const d = new Date();
@@ -727,7 +743,7 @@
       setTimeout(() => { el.style.display = "none"; }, 1500);
     }
 
-    // SALIDAS – jueves a miércoles
+    // --- SALIDAS ---
     function cargarSalidasSemana() {
       const dataStr = localStorage.getItem(LS_SALIDAS);
       let salidasGuardadas = [];
@@ -772,7 +788,7 @@
       if (isNaN(year) || isNaN(month)) return ["","","","","","",""];
 
       const firstDay = new Date(year, month-1, 1);
-      const firstDayDow = firstDay.getDay(); // 0=Dom,...,4=Jue
+      const firstDayDow = firstDay.getDay(); 
       const offsetToThursday = (4 - firstDayDow + 7) % 7;
       const firstThursdayDate = 1 + offsetToThursday;
 
@@ -869,7 +885,7 @@
       if (!chip || !cont) return;
 
       const hoy = new Date();
-      const diaIndex = (hoy.getDay() + 3) % 7; // jueves=0 ... miércoles=6
+      const diaIndex = (hoy.getDay() + 3) % 7; 
       const fechaStr = hoy.toLocaleDateString("es-AR", {
         weekday: "long",
         day: "numeric",
@@ -916,7 +932,7 @@
       cont.innerHTML = html;
     }
 
-    // TERRITORIOS
+    // --- TERRITORIOS ---
     function cargarTerritorios() {
       const dataStr = localStorage.getItem(LS_TERRITORIOS);
       let lista = [];
@@ -1045,7 +1061,7 @@
       modal.style.display = "none";
     }
 
-    // INTERESADOS
+    // --- INTERESADOS ---
     function cargarInteresados() {
       const dataStr = localStorage.getItem(LS_INTERESADOS);
       let lista = [];
@@ -1152,7 +1168,7 @@
       });
     }
 
-    // INFORME
+    // --- INFORME ---
     function cargarMetaHoras() {
       const dataStr = localStorage.getItem(LS_META_HORAS);
       if (!dataStr) return {};
@@ -1367,6 +1383,9 @@
 
       const regFecha = document.getElementById("reg-fecha");
       if (regFecha) regFecha.value = hoyISO();
+
+      // Aseguramos que solo inicio esté visible
+      cambiarSeccion("inicio");
     });
   </script>
 </body>
