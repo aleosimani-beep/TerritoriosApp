@@ -642,8 +642,9 @@
     const LS_REGISTRO = "territorios_registroDiario";
     const LS_MAPA_GENERAL = "territorios_mapaGeneral";
 
+    // Semana jueves–miércoles
     const DIAS = [
-      "Lunes","Martes","Miércoles","Jueves","Viernes","Sábado","Domingo"
+      "Jueves","Viernes","Sábado","Domingo","Lunes","Martes","Miércoles"
     ];
 
     function hoyISO() {
@@ -701,7 +702,7 @@
       }
     }
 
-    // ==== Salidas de semana ====
+    // ==== Salidas de semana (jueves–miércoles) ====
 
     function cargarSalidasSemana() {
       const dataStr = localStorage.getItem(LS_SALIDAS);
@@ -741,7 +742,7 @@
     }
 
     function obtenerFechasSemanaMes(mesStr) {
-      // Devuelve array de 7 números de día (o "") para la semana del primer lunes del mes
+      // Semana que comienza en el primer JUEVES del mes (7 días seguidos)
       if (!mesStr) return Array(7).fill("");
       const partes = mesStr.split("-");
       if (partes.length !== 2) return Array(7).fill("");
@@ -749,19 +750,15 @@
       const month = parseInt(partes[1],10); // 1-12
       if (isNaN(year) || isNaN(month)) return Array(7).fill("");
 
-      const firstDay = new Date(year, month-1, 1);
-      const firstDayDow = (firstDay.getDay() + 6) % 7; // Lunes=0 ... Domingo=6
-      let mondayDate = 1 + ((7 - firstDayDow) % 7);
-      const daysInMonth = new Date(year, month, 0).getDate();
+      const firstDay = new Date(year, month-1, 1); // día 1
+      const firstDayDow = firstDay.getDay(); // 0=Dom,1=Lun,...,4=Jue
+      const offsetToThursday = (4 - firstDayDow + 7) % 7; // 4 = jueves
+      const firstThursdayDate = 1 + offsetToThursday;
 
       const fechas = [];
       for (let i = 0; i < 7; i++) {
-        const d = mondayDate + i;
-        if (d >= 1 && d <= daysInMonth) {
-          fechas.push(d);
-        } else {
-          fechas.push("");
-        }
+        const d = new Date(year, month-1, firstThursdayDate + i);
+        fechas.push(d.getDate()); // solo el número de día (aunque pase de mes)
       }
       return fechas;
     }
@@ -850,7 +847,8 @@
       const chip = document.getElementById("chip-fecha-hoy");
       const cont = document.getElementById("bloque-salidas-hoy");
       const hoy = new Date();
-      const diaIndex = (hoy.getDay() + 6) % 7; // 0 lunes ... 6 domingo
+      // Jueves=4 => 0, ..., Miércoles=3 => 6
+      const diaIndex = (hoy.getDay() + 3) % 7;
       const fechaStr = hoy.toLocaleDateString("es-AR", {
         weekday: "long",
         day: "numeric",
@@ -889,471 +887,4 @@
         html += `<p style="margin-top:0.4rem;"><strong>Tarde:</strong> ${hoyFila.tardeHora || ""} ${hoyFila.tardeAct || ""}</p>`;
         const det2 = [];
         if (hoyFila.tardeConductor) det2.push("Conductor: "+hoyFila.tardeConductor);
-        if (hoyFila.tardeMapa) det2.push("Mapa: "+hoyFila.tardeMapa);
-        if (det2.length) {
-          html += `<p class="small-text">- ${det2.join(" · ")}</p>`;
-        }
-      }
-
-      cont.innerHTML = html;
-    }
-
-    // ==== Territorios ====
-
-    function cargarTerritorios() {
-      const dataStr = localStorage.getItem(LS_TERRITORIOS);
-      let lista = [];
-      if (dataStr) {
-        try { lista = JSON.parse(dataStr); } catch(e){}
-      }
-      if (!Array.isArray(lista)) lista = [];
-      return lista;
-    }
-
-    function guardarTerritorios(lista) {
-      localStorage.setItem(LS_TERRITORIOS, JSON.stringify(lista));
-    }
-
-    function renderTerritorios() {
-      const lista = cargarTerritorios();
-      const tbody = document.getElementById("tabla-territorios");
-      const chip = document.getElementById("chip-total-territorios");
-      const msgSin = document.getElementById("msg-sin-territorios");
-
-      tbody.innerHTML = "";
-      chip.textContent = `${lista.length} registrados`;
-
-      if (!lista.length) {
-        msgSin.style.display = "block";
-        return;
-      }
-      msgSin.style.display = "none";
-
-      lista.forEach((t, idx) => {
-        const tr = document.createElement("tr");
-        tr.innerHTML = `
-          <td>${t.nombre || ""}</td>
-          <td>${t.notas || ""}</td>
-          <td>
-            <div style="display:flex; align-items:center; gap:0.3rem;">
-              <div style="width:16px; height:16px; border-radius:4px; border:1px solid #d1d5db; background:${t.color || "#ffffff"};"></div>
-              <span class="small-text">${t.color || ""}</span>
-            </div>
-          </td>
-          <td>
-            <button class="btn-danger btn-small" onclick="eliminarTerritorio(${idx})">✕</button>
-          </td>
-        `;
-        tbody.appendChild(tr);
-      });
-    }
-
-    function agregarTerritorio() {
-      const nombre = document.getElementById("territorio-nombre").value.trim();
-      const color = document.getElementById("territorio-color").value;
-      const notas = document.getElementById("territorio-notas").value.trim();
-
-      if (!nombre) {
-        mostrarStatus("status-territorio","Poné un nombre o número de territorio",false);
-        return;
-      }
-
-      const lista = cargarTerritorios();
-      lista.push({
-        id: Date.now(),
-        nombre,
-        color,
-        notas
-      });
-      guardarTerritorios(lista);
-      renderTerritorios();
-
-      document.getElementById("territorio-nombre").value = "";
-      document.getElementById("territorio-notas").value = "";
-      mostrarStatus("status-territorio","Territorio agregado ✅",true);
-    }
-
-    function eliminarTerritorio(idx) {
-      const lista = cargarTerritorios();
-      if (idx < 0 || idx >= lista.length) return;
-      if (!confirm("¿Eliminar este territorio?")) return;
-      lista.splice(idx,1);
-      guardarTerritorios(lista);
-      renderTerritorios();
-    }
-
-    // Mapa general
-
-    function mostrarMapaPreview(dataUrl) {
-      const wrapper = document.getElementById("mapa-preview-wrapper");
-      const img = document.getElementById("mapa-preview");
-      if (!wrapper || !img) return;
-      if (dataUrl) {
-        img.src = dataUrl;
-        wrapper.style.display = "block";
-      } else {
-        wrapper.style.display = "none";
-      }
-    }
-
-    function cargarMapaGeneral() {
-      const dataUrl = localStorage.getItem(LS_MAPA_GENERAL);
-      if (dataUrl) {
-        mostrarMapaPreview(dataUrl);
-      }
-    }
-
-    function subirMapaGeneral(event) {
-      const file = event.target.files[0];
-      if (!file) return;
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        const dataUrl = e.target.result;
-        localStorage.setItem(LS_MAPA_GENERAL, dataUrl);
-        mostrarMapaPreview(dataUrl);
-        mostrarStatus("status-territorio","Mapa general guardado ✅",true);
-      };
-      reader.readAsDataURL(file);
-    }
-
-    function abrirMapaAmpliado() {
-      const dataUrl = localStorage.getItem(LS_MAPA_GENERAL);
-      if (!dataUrl) return;
-      const modal = document.getElementById("mapa-modal");
-      const img = document.getElementById("mapa-modal-img");
-      img.src = dataUrl;
-      modal.style.display = "flex";
-    }
-
-    function cerrarMapaAmpliado(ev) {
-      if (ev) ev.stopPropagation();
-      const modal = document.getElementById("mapa-modal");
-      modal.style.display = "none";
-    }
-
-    // ==== Interesados ====
-
-    function cargarInteresados() {
-      const dataStr = localStorage.getItem(LS_INTERESADOS);
-      let lista = [];
-      if (dataStr) {
-        try { lista = JSON.parse(dataStr); } catch(e){}
-      }
-      if (!Array.isArray(lista)) lista = [];
-      return lista;
-    }
-
-    function guardarInteresados(lista) {
-      localStorage.setItem(LS_INTERESADOS, JSON.stringify(lista));
-    }
-
-    function agregarInteresado() {
-      const nombre = document.getElementById("int-nombre").value.trim();
-      const dir = document.getElementById("int-direccion").value.trim();
-      const tel = document.getElementById("int-telefono").value.trim();
-      const terr = document.getElementById("int-territorio").value.trim();
-      const notas = document.getElementById("int-notas").value.trim();
-
-      if (!nombre) {
-        mostrarStatus("status-interesado","Poné al menos el nombre",false);
-        return;
-      }
-
-      const lista = cargarInteresados();
-      lista.push({
-        id: Date.now(),
-        nombre,
-        direccion: dir,
-        telefono: tel,
-        territorio: terr,
-        notas
-      });
-      guardarInteresados(lista);
-
-      document.getElementById("int-nombre").value = "";
-      document.getElementById("int-direccion").value = "";
-      document.getElementById("int-telefono").value = "";
-      document.getElementById("int-territorio").value = "";
-      document.getElementById("int-notas").value = "";
-
-      renderInteresados();
-      mostrarStatus("status-interesado","Interesado agregado ✅",true);
-    }
-
-    function eliminarInteresado(id) {
-      const lista = cargarInteresados();
-      const idx = lista.findIndex(i => i.id === id);
-      if (idx === -1) return;
-      if (!confirm("¿Eliminar este interesado?")) return;
-      lista.splice(idx,1);
-      guardarInteresados(lista);
-      renderInteresados();
-    }
-
-    function renderInteresados() {
-      const lista = cargarInteresados();
-      const cont = document.getElementById("lista-interesados");
-      const chip = document.getElementById("chip-total-interesados");
-      const msgSin = document.getElementById("msg-sin-interesados");
-      const filtro = document.getElementById("buscador-interesados").value.trim().toLowerCase();
-
-      chip.textContent = `${lista.length} contactos`;
-      cont.innerHTML = "";
-
-      const filtrados = lista.filter(i => {
-        if (!filtro) return true;
-        const txt = (i.nombre + " " + i.direccion + " " + i.territorio).toLowerCase();
-        return txt.includes(filtro);
-      });
-
-      if (!lista.length) {
-        msgSin.style.display = "block";
-      } else {
-        msgSin.style.display = "none";
-      }
-
-      if (!filtrados.length && lista.length) {
-        cont.innerHTML = `<p class="small-text">No hay resultados para ese filtro.</p>`;
-        return;
-      }
-
-      filtrados.forEach(i => {
-        const div = document.createElement("div");
-        div.className = "interesado-card";
-        div.innerHTML = `
-          <div class="interesado-nombre">${i.nombre}</div>
-          <div class="interesado-detalle">
-            ${i.direccion ? "<strong>Dirección:</strong> "+i.direccion+"<br/>" : ""}
-            ${i.telefono ? "<strong>Tel:</strong> "+i.telefono+"<br/>" : ""}
-            ${i.territorio ? "<strong>Territorio:</strong> "+i.territorio+"<br/>" : ""}
-            ${i.notas ? "<strong>Notas:</strong> "+i.notas : ""}
-          </div>
-          <div style="margin-top:0.25rem;">
-            <button class="btn-danger btn-small" onclick="eliminarInteresado(${i.id})">Eliminar</button>
-          </div>
-        `;
-        cont.appendChild(div);
-      });
-    }
-
-    // ==== Informe personal ====
-
-    function cargarMetaHoras() {
-      const dataStr = localStorage.getItem(LS_META_HORAS);
-      if (!dataStr) return {};
-      try { return JSON.parse(dataStr); } catch(e){}
-      return {};
-    }
-
-    function cargarMetaAnual() {
-      const dataStr = localStorage.getItem(LS_META_ANUAL);
-      if (!dataStr) return {};
-      try { return JSON.parse(dataStr); } catch(e){}
-      return {};
-    }
-
-    function guardarMetas() {
-      const metaHorasStr = document.getElementById("meta-horas").value.trim();
-      const metaMensual = metaHorasStr ? parseFloat(metaHorasStr) : 0;
-      const metaAnualStr = document.getElementById("meta-anual").value.trim();
-      const metaAnualVal = metaAnualStr ? parseFloat(metaAnualStr) : 0;
-
-      const metasMes = cargarMetaHoras();
-      metasMes[mesActualClave()] = isNaN(metaMensual) ? 0 : metaMensual;
-      localStorage.setItem(LS_META_HORAS, JSON.stringify(metasMes));
-
-      const metasAnual = cargarMetaAnual();
-      metasAnual[currentServiceYearKey()] = isNaN(metaAnualVal) ? 0 : metaAnualVal;
-      localStorage.setItem(LS_META_ANUAL, JSON.stringify(metasAnual));
-
-      mostrarStatus("status-meta","Metas guardadas ✅",true);
-      actualizarResumenInforme();
-    }
-
-    function cargarRegistro() {
-      const dataStr = localStorage.getItem(LS_REGISTRO);
-      let lista = [];
-      if (dataStr) {
-        try { lista = JSON.parse(dataStr); } catch(e){}
-      }
-      if (!Array.isArray(lista)) lista = [];
-      return lista;
-    }
-
-    function guardarRegistro(lista) {
-      localStorage.setItem(LS_REGISTRO, JSON.stringify(lista));
-    }
-
-    function agregarRegistroDiario() {
-      const fecha = document.getElementById("reg-fecha").value || hoyISO();
-      const horasStr = document.getElementById("reg-horas").value.trim();
-      const horas = horasStr ? parseFloat(horasStr) : 0;
-      const cursosStr = document.getElementById("reg-cursos").value.trim();
-      const cursos = cursosStr ? parseInt(cursosStr,10) : 0;
-
-      if (!horas || isNaN(horas)) {
-        mostrarStatus("status-registro","Indicá cuántas horas hiciste",false);
-        return;
-      }
-
-      const lista = cargarRegistro();
-      lista.push({
-        id: Date.now(),
-        fecha,
-        horas,
-        cursos: isNaN(cursos) ? 0 : cursos
-      });
-      guardarRegistro(lista);
-
-      document.getElementById("reg-fecha").value = "";
-      document.getElementById("reg-horas").value = "";
-      document.getElementById("reg-cursos").value = "";
-
-      mostrarStatus("status-registro","Registro agregado ✅",true);
-      actualizarResumenInforme();
-    }
-
-    function eliminarRegistro(id) {
-      const lista = cargarRegistro();
-      const idx = lista.findIndex(r => r.id === id);
-      if (idx === -1) return;
-      if (!confirm("¿Eliminar este registro?")) return;
-      lista.splice(idx,1);
-      guardarRegistro(lista);
-      actualizarResumenInforme();
-    }
-
-    function actualizarResumenInforme() {
-      const mesClave = mesActualClave();
-      const chip = document.getElementById("chip-mes-informe");
-      const resumenDiv = document.getElementById("resumen-mes");
-      const tbody = document.getElementById("tabla-registro-diario");
-      const msgSin = document.getElementById("msg-sin-registro");
-
-      const fecha = new Date();
-      const nombreMes = fecha.toLocaleDateString("es-AR",{month:"long", year:"numeric"});
-      chip.textContent = nombreMes.charAt(0).toUpperCase()+nombreMes.slice(1);
-
-      const metasMes = cargarMetaHoras();
-      const metaMensual = metasMes[mesClave] || 0;
-
-      const metasAnual = cargarMetaAnual();
-      const servKey = currentServiceYearKey();
-      const metaAnual = metasAnual[servKey] || 0;
-
-      const registrosTodos = cargarRegistro();
-      const registrosMes = registrosTodos.filter(r => (r.fecha || "").startsWith(mesClave));
-      const registrosServiceYear = registrosTodos.filter(r => serviceYearKeyFromDate(r.fecha || "") === servKey);
-
-      tbody.innerHTML = "";
-
-      if (!registrosMes.length) {
-        msgSin.style.display = "block";
-      } else {
-        msgSin.style.display = "none";
-      }
-
-      let totalHorasMes = 0;
-      let totalCursosMes = 0;
-      registrosMes.sort((a,b) => (a.fecha || "").localeCompare(b.fecha || ""));
-      registrosMes.forEach(r => {
-        totalHorasMes += r.horas || 0;
-        totalCursosMes += r.cursos || 0;
-        const tr = document.createElement("tr");
-        const fechaFmt = new Date(r.fecha+"T00:00:00").toLocaleDateString("es-AR",{day:"2-digit", month:"2-digit"});
-        tr.innerHTML = `
-          <td>${fechaFmt}</td>
-          <td>${(r.horas || 0).toFixed(2)}</td>
-          <td>${r.cursos || 0}</td>
-          <td><button class="btn-danger btn-small" onclick="eliminarRegistro(${r.id})">✕</button></td>
-        `;
-        tbody.appendChild(tr);
-      });
-
-      let totalHorasAnual = 0;
-      registrosServiceYear.forEach(r => totalHorasAnual += r.horas || 0);
-
-      let textoMetaMensual = "";
-      if (!metaMensual) {
-        textoMetaMensual = "No configuraste una meta mensual de horas.";
-      } else if (metaMensual && totalHorasMes >= metaMensual) {
-        textoMetaMensual = `Meta mensual de ${metaMensual.toFixed(2)} horas alcanzada ✅ (llevás ${totalHorasMes.toFixed(2)} h).`;
-      } else {
-        const diff = metaMensual - totalHorasMes;
-        textoMetaMensual = `Llevás ${totalHorasMes.toFixed(2)} h de ${metaMensual.toFixed(2)} h. Te faltan ${diff.toFixed(2)} h.`;
-      }
-
-      let textoMetaAnual = "";
-      if (!metaAnual) {
-        textoMetaAnual = `Meta anual no configurada para el año de servicio ${servKey}.`;
-      } else if (totalHorasAnual >= metaAnual) {
-        textoMetaAnual = `Meta anual de ${metaAnual.toFixed(0)} h alcanzada ✅ (llevás ${totalHorasAnual.toFixed(2)} h).`;
-      } else {
-        const diffA = metaAnual - totalHorasAnual;
-        textoMetaAnual = `Año de servicio ${servKey}: llevás ${totalHorasAnual.toFixed(2)} h de ${metaAnual.toFixed(0)} h. Te faltan ${diffA.toFixed(2)} h.`;
-      }
-
-      resumenDiv.innerHTML = `
-        <div class="resumen-destacado">
-          <div class="resumen-linea">
-            <span>Total de horas del mes</span>
-            <strong>${totalHorasMes.toFixed(2)} h</strong>
-          </div>
-          <div class="resumen-linea">
-            <span>Total de cursos del mes</span>
-            <strong>${totalCursosMes}</strong>
-          </div>
-          <div class="resumen-linea">
-            <span>Meta mensual configurada</span>
-            <strong>${metaMensual ? metaMensual.toFixed(2)+" h" : "Sin meta"}</strong>
-          </div>
-          <div class="resumen-linea">
-            <span>Horas en año de servicio (${servKey})</span>
-            <strong>${totalHorasAnual.toFixed(2)} h</strong>
-          </div>
-        </div>
-        <p class="small-text" style="margin-top:0.2rem;">${textoMetaMensual}</p>
-        <p class="small-text" style="margin-top:0.2rem;">${textoMetaAnual}</p>
-      `;
-
-      // Mostrar metas actuales en inputs
-      document.getElementById("meta-horas").value = metaMensual || "";
-      document.getElementById("meta-anual").value = metaAnual || "";
-    }
-
-    // ==== Init ====
-
-    window.addEventListener("load", () => {
-      // Territorio color preview
-      const colorInp = document.getElementById("territorio-color");
-      const colorPrev = document.getElementById("territorio-color-preview");
-      colorPrev.style.background = colorInp.value;
-      colorInp.addEventListener("input", () => {
-        colorPrev.style.background = colorInp.value;
-      });
-
-      // Mes del programa de salidas
-      const inpMesSalidas = document.getElementById("salidas-mes");
-      if (inpMesSalidas) {
-        const mesGuardado = localStorage.getItem(LS_SALIDAS_MES) || mesActualClave();
-        inpMesSalidas.value = mesGuardado;
-        localStorage.setItem(LS_SALIDAS_MES, mesGuardado);
-      }
-
-      // Salidas
-      renderSalidasSemana();
-      renderSalidasHoy();
-
-      // Territorios / interesados / informe / mapa
-      renderTerritorios();
-      renderInteresados();
-      cargarMapaGeneral();
-      actualizarResumenInforme();
-
-      // Fecha por defecto en registro diario
-      const regFecha = document.getElementById("reg-fecha");
-      if (regFecha) regFecha.value = hoyISO();
-    });
-  </script>
-</body>
-</html>
+        if (hoyFila.tardeMapa) det2.push("Mapa: "+hoyFila.tardeM
