@@ -110,8 +110,7 @@
     input[type="date"],
     input[type="time"],
     input[type="number"],
-    textarea,
-    select {
+    textarea {
       width: 100%;
       box-sizing: border-box;
       font-size: 0.85rem;
@@ -122,8 +121,7 @@
       margin-bottom: 0.45rem;
     }
     input:focus,
-    textarea:focus,
-    select:focus {
+    textarea:focus {
       outline: 2px solid #2563eb33;
       border-color: #2563eb;
     }
@@ -197,8 +195,6 @@
       margin-top: 0.25rem;
     }
 
-    /* Layouts específicos */
-
     .salidas-grid {
       display: grid;
       grid-template-columns: 1.2fr 1fr 1fr;
@@ -268,7 +264,6 @@
       color: #4b5563;
     }
 
-    /* NAV inferior */
     .bottom-nav {
       position: fixed;
       left: 0;
@@ -319,7 +314,6 @@
       }
     }
 
-    /* Modal mapa general */
     .mapa-modal {
       position: fixed;
       inset: 0;
@@ -417,7 +411,7 @@
             <span class="chip" id="chip-total-territorios">0 registrados</span>
           </div>
           <p class="small-text">
-            Podés usar el color como referencia visual: por ejemplo, verde = trabajado recientemente, amarillo = por hacer, rojo = pendiente.
+            Podés usar el color como referencia visual: verde = trabajado, amarillo = por hacer, rojo = pendiente.
           </p>
 
           <h3>Mapa general</h3>
@@ -613,8 +607,27 @@
   </div>
 
   <script>
-    // ==== Constantes / helpers generales ====
+    // ==== Navegación básica (asegura que los botones anden) ====
+    function cambiarSeccion(id) {
+      var sections = ['inicio','salidas','territorios','interesados','informe'];
+      for (var i = 0; i < sections.length; i++) {
+        var sec = sections[i];
+        var secEl = document.getElementById('sec-' + sec);
+        var navEl = document.getElementById('nav-' + sec);
+        if (sec === id) {
+          if (secEl) secEl.classList.add('active');
+          if (navEl) navEl.classList.add('active');
+        } else {
+          if (secEl) secEl.classList.remove('active');
+          if (navEl) navEl.classList.remove('active');
+        }
+      }
+      if (id === 'informe') {
+        actualizarResumenInforme();
+      }
+    }
 
+    // ==== Constantes / helpers ====
     const LS_SALIDAS = "territorios_salidasSemana";
     const LS_SALIDAS_MES = "territorios_salidasMes";
     const LS_TERRITORIOS = "territorios_lista";
@@ -640,52 +653,33 @@
 
     function serviceYearKeyFromDate(dateStr) {
       if (!dateStr) return "";
-      const [y,m] = dateStr.split("-");
-      const year = parseInt(y,10);
-      const month = parseInt(m,10);
+      const partes = dateStr.split("-");
+      if (partes.length < 2) return "";
+      const year = parseInt(partes[0],10);
+      const month = parseInt(partes[1],10);
       if (isNaN(year) || isNaN(month)) return "";
-      // Septiembre a agosto
       const startYear = (month >= 9) ? year : year - 1;
       const endYear = startYear + 1;
-      return `${startYear}-${endYear}`;
+      return startYear + "-" + endYear;
     }
 
     function currentServiceYearKey() {
       return serviceYearKeyFromDate(hoyISO());
     }
 
-    function mostrarStatus(id, msg, ok=true) {
+    function mostrarStatus(id, msg, ok) {
+      if (ok === undefined) ok = true;
       const el = document.getElementById(id);
       if (!el) return;
       el.textContent = msg;
       el.style.display = "block";
       el.className = ok ? "status-ok" : "status-error";
-      setTimeout(() => {
+      setTimeout(function() {
         el.style.display = "none";
       }, 1500);
     }
 
-    function cambiarSeccion(id) {
-      const sections = ["inicio","salidas","territorios","interesados","informe"];
-      sections.forEach(sec => {
-        const secEl = document.getElementById("sec-"+sec);
-        const navEl = document.getElementById("nav-"+sec);
-        if (sec === id) {
-          secEl.classList.add("active");
-          navEl.classList.add("active");
-        } else {
-          secEl.classList.remove("active");
-          navEl.classList.remove("active");
-        }
-      });
-
-      if (id === "informe") {
-        actualizarResumenInforme();
-      }
-    }
-
     // ==== Salidas de semana (jueves–miércoles) ====
-
     function cargarSalidasSemana() {
       const dataStr = localStorage.getItem(LS_SALIDAS);
       let salidasGuardadas = [];
@@ -694,24 +688,22 @@
           salidasGuardadas = JSON.parse(dataStr);
         } catch (e) {}
       }
-
-      // Siempre usamos el orden DIAS (jueves–miércoles),
-      // solo reutilizamos los datos por índice
       if (!Array.isArray(salidasGuardadas) || salidasGuardadas.length !== 7) {
-        return DIAS.map(d => ({
-          dia: d,
-          mananaAct: "",
-          mananaHora: "",
-          mananaConductor: "",
-          mananaMapa: "",
-          tardeAct: "",
-          tardeHora: "",
-          tardeConductor: "",
-          tardeMapa: ""
-        }));
+        return DIAS.map(function(d) {
+          return {
+            dia: d,
+            mananaAct: "",
+            mananaHora: "",
+            mananaConductor: "",
+            mananaMapa: "",
+            tardeAct: "",
+            tardeHora: "",
+            tardeConductor: "",
+            tardeMapa: ""
+          };
+        });
       }
-
-      return DIAS.map((d, idx) => {
+      return DIAS.map(function(d, idx) {
         const fila = salidasGuardadas[idx] || {};
         return {
           dia: d,
@@ -728,93 +720,92 @@
     }
 
     function obtenerFechasSemanaMes(mesStr) {
-      // Semana que comienza en el primer JUEVES del mes (7 días seguidos)
-      if (!mesStr) return Array(7).fill("");
+      if (!mesStr) return [ "", "", "", "", "", "", "" ];
       const partes = mesStr.split("-");
-      if (partes.length !== 2) return Array(7).fill("");
+      if (partes.length !== 2) return [ "", "", "", "", "", "", "" ];
       const year = parseInt(partes[0],10);
-      const month = parseInt(partes[1],10); // 1-12
-      if (isNaN(year) || isNaN(month)) return Array(7).fill("");
+      const month = parseInt(partes[1],10);
+      if (isNaN(year) || isNaN(month)) return [ "", "", "", "", "", "", "" ];
 
-      const firstDay = new Date(year, month-1, 1); // día 1
-      const firstDayDow = firstDay.getDay(); // 0=Dom,1=Lun,...,4=Jue
-      const offsetToThursday = (4 - firstDayDow + 7) % 7; // 4 = jueves
+      const firstDay = new Date(year, month-1, 1);
+      const firstDayDow = firstDay.getDay(); // 0=Dom,...,4=Jue
+      const offsetToThursday = (4 - firstDayDow + 7) % 7;
       const firstThursdayDate = 1 + offsetToThursday;
 
       const fechas = [];
-      for (let i = 0; i < 7; i++) {
+      for (var i = 0; i < 7; i++) {
         const d = new Date(year, month-1, firstThursdayDate + i);
-        fechas.push(d.getDate()); // número de día
+        fechas.push(d.getDate());
       }
       return fechas;
     }
 
     function renderSalidasSemana() {
       const cont = document.getElementById("contenedor-salidas-semana");
+      if (!cont) return;
       cont.innerHTML = "";
       const salidas = cargarSalidasSemana();
-
       const mesGuardado = localStorage.getItem(LS_SALIDAS_MES) || mesActualClave();
       const fechas = obtenerFechasSemanaMes(mesGuardado);
 
-      salidas.forEach((fila, idx) => {
+      salidas.forEach(function(fila, idx) {
         const row = document.createElement("div");
         row.className = "salidas-grid";
-
         const numeroDia = fechas[idx] || "";
-        const etiquetaDia = numeroDia ? `${fila.dia} ${numeroDia}` : fila.dia;
+        const etiquetaDia = numeroDia ? (fila.dia + " " + numeroDia) : fila.dia;
 
-        row.innerHTML = `
-          <div class="small-text">${etiquetaDia}</div>
-          <div class="bloque-periodo">
-            <div class="mini-label">Encuentro</div>
-            <input type="text" id="manana-act-${idx}" value="${fila.mananaAct || ""}" placeholder="Ej: Encuentro 1" />
-            <div class="flex-row">
-              <div class="flex-1">
-                <div class="mini-label">Hora</div>
-                <input type="time" id="manana-hora-${idx}" value="${fila.mananaHora || ""}" />
-              </div>
-              <div class="flex-1">
-                <div class="mini-label">Conductor</div>
-                <input type="text" id="manana-cond-${idx}" value="${fila.mananaConductor || ""}" />
-              </div>
-            </div>
-            <div class="mini-label">Mapa / punto de encuentro</div>
-            <input type="text" id="manana-mapa-${idx}" value="${fila.mananaMapa || ""}" placeholder="Ej: Plaza X, Mapa 3" />
-          </div>
-          <div class="bloque-periodo">
-            <div class="mini-label">Encuentro</div>
-            <input type="text" id="tarde-act-${idx}" value="${fila.tardeAct || ""}" placeholder="Ej: Encuentro 2" />
-            <div class="flex-row">
-              <div class="flex-1">
-                <div class="mini-label">Hora</div>
-                <input type="time" id="tarde-hora-${idx}" value="${fila.tardeHora || ""}" />
-              </div>
-              <div class="flex-1">
-                <div class="mini-label">Conductor</div>
-                <input type="text" id="tarde-cond-${idx}" value="${fila.tardeConductor || ""}" />
-              </div>
-            </div>
-            <div class="mini-label">Mapa / punto de encuentro</div>
-            <input type="text" id="tarde-mapa-${idx}" value="${fila.tardeMapa || ""}" placeholder="Ej: Plaza Y, Mapa 4" />
-          </div>
-        `;
+        row.innerHTML =
+          '<div class="small-text">' + etiquetaDia + '</div>' +
+          '<div class="bloque-periodo">' +
+            '<div class="mini-label">Encuentro</div>' +
+            '<input type="text" id="manana-act-' + idx + '" value="' + (fila.mananaAct || "") + '" placeholder="Ej: Encuentro 1" />' +
+            '<div class="flex-row">' +
+              '<div class="flex-1">' +
+                '<div class="mini-label">Hora</div>' +
+                '<input type="time" id="manana-hora-' + idx + '" value="' + (fila.mananaHora || "") + '" />' +
+              '</div>' +
+              '<div class="flex-1">' +
+                '<div class="mini-label">Conductor</div>' +
+                '<input type="text" id="manana-cond-' + idx + '" value="' + (fila.mananaConductor || "") + '" />' +
+              '</div>' +
+            '</div>' +
+            '<div class="mini-label">Mapa / punto de encuentro</div>' +
+            '<input type="text" id="manana-mapa-' + idx + '" value="' + (fila.mananaMapa || "") + '" placeholder="Ej: Plaza X, Mapa 3" />' +
+          '</div>' +
+          '<div class="bloque-periodo">' +
+            '<div class="mini-label">Encuentro</div>' +
+            '<input type="text" id="tarde-act-' + idx + '" value="' + (fila.tardeAct || "") + '" placeholder="Ej: Encuentro 2" />' +
+            '<div class="flex-row">' +
+              '<div class="flex-1">' +
+                '<div class="mini-label">Hora</div>' +
+                '<input type="time" id="tarde-hora-' + idx + '" value="' + (fila.tardeHora || "") + '" />' +
+              '</div>' +
+              '<div class="flex-1">' +
+                '<div class="mini-label">Conductor</div>' +
+                '<input type="text" id="tarde-cond-' + idx + '" value="' + (fila.tardeConductor || "") + '" />' +
+              '</div>' +
+            '</div>' +
+            '<div class="mini-label">Mapa / punto de encuentro</div>' +
+            '<input type="text" id="tarde-mapa-' + idx + '" value="' + (fila.tardeMapa || "") + '" placeholder="Ej: Plaza Y, Mapa 4" />' +
+          '</div>';
         cont.appendChild(row);
       });
     }
 
     function guardarSalidasSemana() {
-      const salidas = DIAS.map((dia, idx) => ({
-        dia,
-        mananaAct: document.getElementById("manana-act-"+idx).value.trim(),
-        mananaHora: document.getElementById("manana-hora-"+idx).value.trim(),
-        mananaConductor: document.getElementById("manana-cond-"+idx).value.trim(),
-        mananaMapa: document.getElementById("manana-mapa-"+idx).value.trim(),
-        tardeAct: document.getElementById("tarde-act-"+idx).value.trim(),
-        tardeHora: document.getElementById("tarde-hora-"+idx).value.trim(),
-        tardeConductor: document.getElementById("tarde-cond-"+idx).value.trim(),
-        tardeMapa: document.getElementById("tarde-mapa-"+idx).value.trim()
-      }));
+      const salidas = DIAS.map(function(dia, idx) {
+        return {
+          dia: dia,
+          mananaAct: (document.getElementById("manana-act-" + idx) || {}).value || "",
+          mananaHora: (document.getElementById("manana-hora-" + idx) || {}).value || "",
+          mananaConductor: (document.getElementById("manana-cond-" + idx) || {}).value || "",
+          mananaMapa: (document.getElementById("manana-mapa-" + idx) || {}).value || "",
+          tardeAct: (document.getElementById("tarde-act-" + idx) || {}).value || "",
+          tardeHora: (document.getElementById("tarde-hora-" + idx) || {}).value || "",
+          tardeConductor: (document.getElementById("tarde-cond-" + idx) || {}).value || "",
+          tardeMapa: (document.getElementById("tarde-mapa-" + idx) || {}).value || ""
+        };
+      });
       localStorage.setItem(LS_SALIDAS, JSON.stringify(salidas));
       mostrarStatus("status-salidas","Programa guardado ✅",true);
       renderSalidasHoy();
@@ -832,6 +823,8 @@
     function renderSalidasHoy() {
       const chip = document.getElementById("chip-fecha-hoy");
       const cont = document.getElementById("bloque-salidas-hoy");
+      if (!chip || !cont) return;
+
       const hoy = new Date();
       // Jueves=4 => 0, ..., Miércoles=3 => 6
       const diaIndex = (hoy.getDay() + 3) % 7;
@@ -840,14 +833,13 @@
         day: "numeric",
         month: "long"
       });
-
       chip.textContent = fechaStr.charAt(0).toUpperCase() + fechaStr.slice(1);
 
       const salidas = cargarSalidasSemana();
       const hoyFila = salidas[diaIndex];
 
       if (!hoyFila) {
-        cont.innerHTML = `<p class="small-text">Para hoy no hay salidas configuradas en el programa semanal.</p>`;
+        cont.innerHTML = '<p class="small-text">Para hoy no hay salidas configuradas en el programa semanal.</p>';
         return;
       }
 
@@ -856,26 +848,26 @@
       const tieneTarde = hoyFila.tardeAct || hoyFila.tardeHora || hoyFila.tardeMapa || hoyFila.tardeConductor;
 
       if (!tieneManana && !tieneTarde) {
-        cont.innerHTML = `<p class="small-text">Para hoy no hay salidas configuradas en el programa semanal.</p>`;
+        cont.innerHTML = '<p class="small-text">Para hoy no hay salidas configuradas en el programa semanal.</p>';
         return;
       }
 
       if (tieneManana) {
-        html += `<p><strong>Mañana:</strong> ${hoyFila.mananaHora || ""} ${hoyFila.mananaAct || ""}</p>`;
+        html += '<p><strong>Mañana:</strong> ' + (hoyFila.mananaHora || "") + ' ' + (hoyFila.mananaAct || "") + '</p>';
         const det = [];
-        if (hoyFila.mananaConductor) det.push("Conductor: "+hoyFila.mananaConductor);
-        if (hoyFila.mananaMapa) det.push("Mapa: "+hoyFila.mananaMapa);
+        if (hoyFila.mananaConductor) det.push("Conductor: " + hoyFila.mananaConductor);
+        if (hoyFila.mananaMapa) det.push("Mapa: " + hoyFila.mananaMapa);
         if (det.length) {
-          html += `<p class="small-text">- ${det.join(" · ")}</p>`;
+          html += '<p class="small-text">- ' + det.join(" · ") + '</p>';
         }
       }
       if (tieneTarde) {
-        html += `<p style="margin-top:0.4rem;"><strong>Tarde:</strong> ${hoyFila.tardeHora || ""} ${hoyFila.tardeAct || ""}</p>`;
+        html += '<p style="margin-top:0.4rem;"><strong>Tarde:</strong> ' + (hoyFila.tardeHora || "") + ' ' + (hoyFila.tardeAct || "") + '</p>';
         const det2 = [];
-        if (hoyFila.tardeConductor) det2.push("Conductor: "+hoyFila.tardeConductor);
-        if (hoyFila.tardeMapa) det2.push("Mapa: "+hoyFila.tardeMapa);
+        if (hoyFila.tardeConductor) det2.push("Conductor: " + hoyFila.tardeConductor);
+        if (hoyFila.tardeMapa) det2.push("Mapa: " + hoyFila.tardeMapa);
         if (det2.length) {
-          html += `<p class="small-text">- ${det2.join(" · ")}</p>`;
+          html += '<p class="small-text">- ' + det2.join(" · ") + '</p>';
         }
       }
 
@@ -883,7 +875,6 @@
     }
 
     // ==== Territorios ====
-
     function cargarTerritorios() {
       const dataStr = localStorage.getItem(LS_TERRITORIOS);
       let lista = [];
@@ -903,9 +894,10 @@
       const tbody = document.getElementById("tabla-territorios");
       const chip = document.getElementById("chip-total-territorios");
       const msgSin = document.getElementById("msg-sin-territorios");
+      if (!tbody || !chip || !msgSin) return;
 
       tbody.innerHTML = "";
-      chip.textContent = `${lista.length} registrados`;
+      chip.textContent = lista.length + " registrados";
 
       if (!lista.length) {
         msgSin.style.display = "block";
@@ -913,29 +905,31 @@
       }
       msgSin.style.display = "none";
 
-      lista.forEach((t, idx) => {
+      lista.forEach(function(t, idx) {
         const tr = document.createElement("tr");
-        tr.innerHTML = `
-          <td>${t.nombre || ""}</td>
-          <td>${t.notas || ""}</td>
-          <td>
-            <div style="display:flex; align-items:center; gap:0.3rem;">
-              <div style="width:16px; height:16px; border-radius:4px; border:1px solid #d1d5db; background:${t.color || "#ffffff"};"></div>
-              <span class="small-text">${t.color || ""}</span>
-            </div>
-          </td>
-          <td>
-            <button class="btn-danger btn-small" onclick="eliminarTerritorio(${idx})">✕</button>
-          </td>
-        `;
+        tr.innerHTML =
+          '<td>' + (t.nombre || "") + '</td>' +
+          '<td>' + (t.notas || "") + '</td>' +
+          '<td>' +
+            '<div style="display:flex; align-items:center; gap:0.3rem;">' +
+              '<div style="width:16px; height:16px; border-radius:4px; border:1px solid #d1d5db; background:' + (t.color || "#ffffff") + ';"></div>' +
+              '<span class="small-text">' + (t.color || "") + '</span>' +
+            '</div>' +
+          '</td>' +
+          '<td><button class="btn-danger btn-small" onclick="eliminarTerritorio(' + idx + ')">✕</button></td>';
         tbody.appendChild(tr);
       });
     }
 
     function agregarTerritorio() {
-      const nombre = document.getElementById("territorio-nombre").value.trim();
-      const color = document.getElementById("territorio-color").value;
-      const notas = document.getElementById("territorio-notas").value.trim();
+      const nombreEl = document.getElementById("territorio-nombre");
+      const colorEl = document.getElementById("territorio-color");
+      const notasEl = document.getElementById("territorio-notas");
+      if (!nombreEl || !colorEl || !notasEl) return;
+
+      const nombre = nombreEl.value.trim();
+      const color = colorEl.value;
+      const notas = notasEl.value.trim();
 
       if (!nombre) {
         mostrarStatus("status-territorio","Poné un nombre o número de territorio",false);
@@ -945,15 +939,15 @@
       const lista = cargarTerritorios();
       lista.push({
         id: Date.now(),
-        nombre,
-        color,
-        notas
+        nombre: nombre,
+        color: color,
+        notas: notas
       });
       guardarTerritorios(lista);
       renderTerritorios();
 
-      document.getElementById("territorio-nombre").value = "";
-      document.getElementById("territorio-notas").value = "";
+      nombreEl.value = "";
+      notasEl.value = "";
       mostrarStatus("status-territorio","Territorio agregado ✅",true);
     }
 
@@ -965,8 +959,6 @@
       guardarTerritorios(lista);
       renderTerritorios();
     }
-
-    // Mapa general
 
     function mostrarMapaPreview(dataUrl) {
       const wrapper = document.getElementById("mapa-preview-wrapper");
@@ -991,128 +983,5 @@
       const file = event.target.files[0];
       if (!file) return;
       const reader = new FileReader();
-      reader.onload = (e) => {
-        const dataUrl = e.target.result;
-        localStorage.setItem(LS_MAPA_GENERAL, dataUrl);
-        mostrarMapaPreview(dataUrl);
-        mostrarStatus("status-territorio","Mapa general guardado ✅",true);
-      };
-      reader.readAsDataURL(file);
-    }
-
-    function abrirMapaAmpliado() {
-      const dataUrl = localStorage.getItem(LS_MAPA_GENERAL);
-      if (!dataUrl) return;
-      const modal = document.getElementById("mapa-modal");
-      const img = document.getElementById("mapa-modal-img");
-      img.src = dataUrl;
-      modal.style.display = "flex";
-    }
-
-    function cerrarMapaAmpliado(ev) {
-      if (ev) ev.stopPropagation();
-      const modal = document.getElementById("mapa-modal");
-      modal.style.display = "none";
-    }
-
-    // ==== Interesados ====
-
-    function cargarInteresados() {
-      const dataStr = localStorage.getItem(LS_INTERESADOS);
-      let lista = [];
-      if (dataStr) {
-        try { lista = JSON.parse(dataStr); } catch(e){}
-      }
-      if (!Array.isArray(lista)) lista = [];
-      return lista;
-    }
-
-    function guardarInteresados(lista) {
-      localStorage.setItem(LS_INTERESADOS, JSON.stringify(lista));
-    }
-
-    function agregarInteresado() {
-      const nombre = document.getElementById("int-nombre").value.trim();
-      const dir = document.getElementById("int-direccion").value.trim();
-      const tel = document.getElementById("int-telefono").value.trim();
-      const terr = document.getElementById("int-territorio").value.trim();
-      const notas = document.getElementById("int-notas").value.trim();
-
-      if (!nombre) {
-        mostrarStatus("status-interesado","Poné al menos el nombre",false);
-        return;
-      }
-
-      const lista = cargarInteresados();
-      lista.push({
-        id: Date.now(),
-        nombre,
-        direccion: dir,
-        telefono: tel,
-        territorio: terr,
-        notas
-      });
-      guardarInteresados(lista);
-
-      document.getElementById("int-nombre").value = "";
-      document.getElementById("int-direccion").value = "";
-      document.getElementById("int-telefono").value = "";
-      document.getElementById("int-territorio").value = "";
-      document.getElementById("int-notas").value = "";
-
-      renderInteresados();
-      mostrarStatus("status-interesado","Interesado agregado ✅",true);
-    }
-
-    function eliminarInteresado(id) {
-      const lista = cargarInteresados();
-      const idx = lista.findIndex(i => i.id === id);
-      if (idx === -1) return;
-      if (!confirm("¿Eliminar este interesado?")) return;
-      lista.splice(idx,1);
-      guardarInteresados(lista);
-      renderInteresados();
-    }
-
-    function renderInteresados() {
-      const lista = cargarInteresados();
-      const cont = document.getElementById("lista-interesados");
-      const chip = document.getElementById("chip-total-interesados");
-      const msgSin = document.getElementById("msg-sin-interesados");
-      const filtro = document.getElementById("buscador-interesados").value.trim().toLowerCase();
-
-      chip.textContent = `${lista.length} contactos`;
-      cont.innerHTML = "";
-
-      const filtrados = lista.filter(i => {
-        if (!filtro) return true;
-        const txt = (i.nombre + " " + i.direccion + " " + i.territorio).toLowerCase();
-        return txt.includes(filtro);
-      });
-
-      if (!lista.length) {
-        msgSin.style.display = "block";
-      } else {
-        msgSin.style.display = "none";
-      }
-
-      if (!filtrados.length && lista.length) {
-        cont.innerHTML = `<p class="small-text">No hay resultados para ese filtro.</p>`;
-        return;
-      }
-
-      filtrados.forEach(i => {
-        const div = document.createElement("div");
-        div.className = "interesado-card";
-        div.innerHTML = `
-          <div class="interesado-nombre">${i.nombre}</div>
-          <div class="interesado-detalle">
-            ${i.direccion ? "<strong>Dirección:</strong> "+i.direccion+"<br/>" : ""}
-            ${i.telefono ? "<strong>Tel:</strong> "+i.telefono+"<br/>" : ""}
-            ${i.territorio ? "<strong>Territorio:</strong> "+i.territorio+"<br/>" : ""}
-            ${i.notas ? "<strong>Notas:</strong> "+i.notas : ""}
-          </div>
-          <div style="margin-top:0.25rem;">
-            <button class="btn-danger btn-small" onclick="eliminarInteresado(${i.id})">Eliminar</button>
-          </div
-::contentReference[oaicite:0]{index=0}
+      reader.onload = function(e) {
+        const data
